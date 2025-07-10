@@ -68,10 +68,10 @@ def player_similarity(player_id, season, engine):
         neighbor_dists = dists[1:]
 
         print(
-            f"\nTop 3 similar rows to '{query_id["player"][0]} in {query_id["season"][0]}':"
+            f"\nTop 3 similar rows to '{query_id['player'][0]} in {query_id['season'][0]}':"
         )
         for i, dist in enumerate(neighbor_dists):
             print(
-                f"  -> ID: {neighbor_ids[i]["season"][0]}, {neighbor_ids[i]["player"][0]}, Distance: {dist:.3f}"
+                f"  -> ID: {neighbor_ids[i]['season'][0]}, {neighbor_ids[i]['player'][0]}, Distance: {dist:.3f}"
             )
         return neighbor_ids
