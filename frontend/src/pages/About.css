@@ -1,0 +1,42 @@
+.About-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  grid-template-rows: calc(100vh / 8) calc(100vh * 7 / 8);    
+  height: 100vh;
+  width: 100vw;
+  gap: 1rem; /* One root element, refers to root font size, prolly 16pt */
+  padding: 2rem; /* ← add space around entire grid */
+  box-sizing: border-box; /* ensures padding doesn't overflow */
+}
+
+
+
+.About-grid-item {
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.About-court-cell {
+  grid-column: 2 / span 2;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.About-court {
+  transform: rotate(270deg);
+  width: 100%;
+  height: 100%;
+  border: 2px;
+}
+
+.About-svg {
+  max-height: 100%;
+  width: 100%;
+  height: auto;
+  display: block;
+}

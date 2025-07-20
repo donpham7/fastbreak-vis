@@ -29,3 +29,11 @@ def player_similarities(season, player_id):
     res = player_similarity(player_id, season, engine)
     print({"season": res[0]["season"][0], "player_name": res[0]["player"][0]})
     return jsonify({"season": res[0]["season"][0], "player_name": res[0]["player"][0]})
+
+
+@main.route("/api/MirrorBarChart/<season>/<player>")
+def mirror_bar_chart(season, player):
+    query = """SELECT * FROM per_36_minutes WHERE player = %s AND season = %s"""
+    player_df = pd.read_sql(query, engine, params=(player, season))
+    res = player_df.to_dict(orient='records')[0]
+    return jsonify(res)
