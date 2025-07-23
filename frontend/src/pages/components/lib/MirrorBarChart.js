@@ -40,9 +40,6 @@ const statLabels = {
 
 export default function MirrorBarChart({playerAData, playerBData}) {
     const ref = useRef();
-    console.log("playerA", playerAData);
-
-    console.log("playerB", playerBData);
 
     useEffect(() => {
         if (!playerAData || playerAData.length === 0) return;
@@ -57,8 +54,6 @@ export default function MirrorBarChart({playerAData, playerBData}) {
                 data: +value,
             }
         });
-        console.log("playerA", playerA);
-
 
         const playerB = Object.entries(playerBData)
         .filter(([key]) => statLabels.hasOwnProperty(key))
@@ -68,7 +63,6 @@ export default function MirrorBarChart({playerAData, playerBData}) {
                 data: +value,
             }
         });
-        console.log("playerB", playerB);
 
         const sortedLabels = [...playerA]
         .sort((a,b) => b.data - a.data)
@@ -78,7 +72,6 @@ export default function MirrorBarChart({playerAData, playerBData}) {
         const maxB = Math.max(...playerB.map(d => d.data));
         const domainMax = Math.ceil(Math.max(maxA, maxB)) * 2;
 
-        console.log("sorted", sortedLabels);
         const chart = Plot.plot({
             height: 640, 
             width: 640,
