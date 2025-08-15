@@ -26,9 +26,9 @@ export default function TopButtonBar({ activeView, setActiveView }) {
             </div>
             <div className="column is-one-quarter is-centered">
                 <button className="button is-danger"
-                    onClick={() => setActiveView("tbd")}
+                    onClick={() => setActiveView("shotchart")}
                 >
-                    Player TBD
+                    Player Shot Chart
                 </button>
             </div>
         </div>

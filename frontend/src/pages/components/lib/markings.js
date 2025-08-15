@@ -3,7 +3,7 @@ import { svg as htl } from "htl";
 
 
 export default function markings({
-  stroke = "currentColor",
+  stroke = "black",
   strokeWidth = 1,
   strokeOpacity = 1
 } = {}) {

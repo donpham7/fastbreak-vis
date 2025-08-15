@@ -7,6 +7,7 @@ import ChartDisplay from "./components/ChartDisplay.js";
 
 export default function About() {
   const [activeView, setActiveView] = useState("comparison");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [playerAComparison, setplayerAComparison] = useState("");
   const [yearAComparison, setyearAComparison] = useState("");
@@ -16,12 +17,16 @@ export default function About() {
   const [yearBComparison, setyearBComparison] = useState("");
   const [comparisonBData, setBComparisonData] = useState([]);
 
-  const [isLoading, setIsLoading] = useState(false);
 
   const [playerAttributes, setAttributesPlayer] = useState("");
   const [yearAttributes, setAttributesYear] = useState("");
   const [attributesData, setAttributesData] = useState([]);
+  const [chartType, setChartType] = useState("standard");
+  const [attributeScope, setAttributeScope] = useState("overall");
 
+  const [playerShotChart, setShotChartPlayer] = useState(null); 
+  const [shotChartData, setShotChartData] = useState(null); 
+  
   
   let chartProps = {};
 
@@ -38,11 +43,20 @@ export default function About() {
   } 
   else if (activeView === "attributes") {
     chartProps = {
+      chartType,setChartType,
+      attributeScope,setAttributeScope,
       playerAttributes,setAttributesPlayer,
       yearAttributes,setAttributesYear,
       attributesData,setAttributesData,
       isLoading,setIsLoading
     };
+  }
+  else if (activeView === "shotchart") {
+    chartProps = {
+      playerShotChart,setShotChartPlayer,
+      shotChartData,setShotChartData,
+      isLoading,setIsLoading
+    }
   }
   return (
     <div className="about-page">

@@ -1,19 +1,23 @@
 import { useRef, useEffect } from "react";
 import * as Plot from "@observablehq/plot";
 import markings from "./markings";
-import { legend } from "@observablehq/plot";
 
 
-
-
-
-export default function ShotChart({ data }) {
+export default function ShotChart({ playerData }) {
   const ref = useRef();
 
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    console.log("playerData", playerData);
+    if (!playerData || playerData.length === 0) return;
 
-    const season = true;
+    const transformedData = playerData.map(d => ({
+      x: d.loc_x,
+      y: d.loc_y,
+      result: d.shot_made === true
+    }));
+    console.log("transformedData", transformedData);
+
+    const season = false;
 
     const chart = Plot.plot({
       height: 640,
@@ -26,10 +30,10 @@ export default function ShotChart({ data }) {
         scheme: "ylgnbu",
         label: "Made shots",
         domain: (season === true ? [1, 50] : [1, 1000]),
-        legend: false
+        legend: true
       },
       marks: [
-        Plot.rect(data, Plot.bin(
+        Plot.rect(transformedData, Plot.bin(
           { fill: "count" },
           {
             x: "x",
@@ -39,27 +43,14 @@ export default function ShotChart({ data }) {
             inset: 0
           }
         )),
-        Plot.gridX({ interval: 5, strokeOpacity: 0.05 }),
-        Plot.gridY({ interval: 5, strokeOpacity: 0.05 }),
-        markings() // Draw court
+        Plot.gridX({ interval: 5, strokeOpacity: 0.15 }),
+        Plot.gridY({ interval: 5, strokeOpacity: 0.15 }),
+        markings() 
       ]
     });
-
-    const legendElement = legend({
-      color: {
-        type: "log",
-        scheme: "ylgnbu",
-        label: "Made shots"
-      }
-    });
-
-    const legendContainer = document.getElementById("legend-container");
-    if (legendContainer) legendContainer.innerHTML = "";
-    legendContainer.appendChild(legendElement);
-
     ref.current.innerHTML = "";
     ref.current.append(chart);
-  }, [data]);
+  }, [playerData]);
 
   return <div ref={ref} />;
 }

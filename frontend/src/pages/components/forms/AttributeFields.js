@@ -9,7 +9,7 @@ export default function AttributeFields({chartProps}) {
         }
 
         chartProps.setIsLoading(true);
-        fetch(`/api/player_attributes/${chartProps.yearAttributes}/${chartProps.playerAttributes}`).then((res) => res.json())
+        fetch(`/api/player_attributes/${chartProps.yearAttributes}/${chartProps.playerAttributes}/${chartProps.attributeScope}`).then((res) => res.json())
         .then((data) => {
             if(!Array.isArray(data) || data.length === 0) {
                 alert("Player could not be found");
@@ -41,6 +41,14 @@ export default function AttributeFields({chartProps}) {
                         placeholder="Enter Year"
                         onChange={(e) => chartProps.setAttributesYear(e.target.value)}
                     ></input>
+                    < select
+                    style={{ color:"black" }}
+                    value={chartProps.attributeScope}
+                    onChange={(e) => chartProps.setAttributeScope(e.target.value)}
+                    >
+                        <option value="overall">Overall</option>
+                        <option value="position">Position</option>
+                    </select>
                     </div>
                     <button onClick={handleSearch}>Search</button>
                 </div>

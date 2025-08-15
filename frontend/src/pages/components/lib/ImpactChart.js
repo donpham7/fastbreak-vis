@@ -43,18 +43,19 @@ const statLabels = {
     // drb_per_36_min: "DEF Rebounds",
     trb_per_36_min_percentile: "TOT Rebounds",
     ast_per_36_min_percentile: "Assists",
+    tov_per_36_min_percentile: "Turnovers",
     stl_per_36_min_percentile: "Steals",
     blk_per_36_min_percentile: "Blocks",
-    tov_per_36_min_percentile: "Turnovers",
     pf_per_36_min_percentile: "Personal Fouls",
-    pts_per_36_min_percentile: "Points",
+    pts_per_36_min_percentile: "Scoring",
     playmaking_per_36_min_percentile: "Playmaking",
     offensiveaggression_per_36_min_percentile: "OFF Aggression",
     defensiveaggression_per_36_min_percentile: "DEF Aggression",
     shooting_per_36_min_percentile: "Shooting"
 
 
-
+    // e_fg_percent_per_36_min_percentile: "EFG",
+    // mp_per_36_min_percentile: "Minutes"
 };
 
 
@@ -65,7 +66,7 @@ export default function RadarChart({playerData}) {
         if (!Array.isArray(playerData) || playerData.length === 0) {
             return;
         }
-
+        console.log("playerData", playerData);
         const players = playerData.map((e) => {
             const formatted = {};
 
@@ -89,7 +90,7 @@ export default function RadarChart({playerData}) {
 
 
             return Object.entries(statObj)
-                .filter(([key]) => key !== "Season" && key !== "Player" && key !== "Turnovers" && key !== "Personal Fouls" && key !== "Playmaking" && key !== "OFF Aggression" && key !== "DEF Aggression" && key !== "Shooting")
+                .filter(([key]) => key !== "Season" && key !== "Player" && key !== "Turnovers" && key !== "Assists" && key !== "TOT Rebounds" && key !== "Personal Fouls" && key !== "Blocks" && key !== "Steals")
                 .map(([key, value]) => ({
                 name: playerName,
                 key,

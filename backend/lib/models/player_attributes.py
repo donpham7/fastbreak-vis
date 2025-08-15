@@ -15,7 +15,6 @@ feat_exc = [
     "pos",
     "g",
     "gs",
-    "mp",
     "fg_per_36_min",
     "fga_per_36_min",
     "fg_percent_per_36_min",
@@ -25,39 +24,75 @@ feat_exc = [
     "x2p_per_36_min",
     "x2pa_per_36_min",
     "x2p_percent",
-    "e_fg_percent",
     "ft_per_36_min",
     "ft_percent",
     "orb_per_36_min",
     "drb_per_36_min",
-    "pf_per_36_min",
-    "tov_per_36_min",
 
 ]
 
 feat_inc = [
     "season",
     "player",
+    "pos",
     "fta_per_36_min",
     "trb_per_36_min",
     "ast_per_36_min",
     "stl_per_36_min",
     "blk_per_36_min",
     "pts_per_36_min",
+    "tov_per_36_min",
+    "pf_per_36_min",
+    "ts_percent",
+    "p36_e_fg_percent"
+
+    # "e_fg_percent",
+    # "mp"
+
 ]
 
 
-def player_attributes(player, season, engine):
-    # SQL query
-    query = "SELECT * FROM per_36_minutes"
+def player_attributes(player, season, scope, engine):
 
-    # Read into pandas DataFrame
-    per36 = pd.read_sql(query, engine)
-    per36 = pl.from_pandas(per36)
-    per36_clean = per36.drop_nans().drop_nulls()
-    data = per36_clean[feat_inc]
-    szn = data.filter(pl.col("season") == int(season))
+    if scope == "overall":
+        query = """ SELECT player, fta_per_36_min, trb_per_36_min, ast_per_36_min, stl_per_36_min, blk_per_36_min, pts_per_36_min, tov_per_36_min, pf_per_36_min, ts_percent, p36_e_fg_percent FROM GameView WHERE season = %s """
+        df = pd.read_sql(query, engine, params=(season,))
 
+    else:
+        pos_query = """ SELECT pos FROM GameView WHERE player = %s AND season = %s LIMIT 1 """
+        pos_df = pd.read_sql(pos_query, engine, params=(player, season))
+        pos = pos_df.iloc[0]["pos"]
+        query = """ SELECT player, fta_per_36_min, trb_per_36_min, ast_per_36_min, stl_per_36_min, blk_per_36_min, pts_per_36_min, tov_per_36_min, pf_per_36_min, ts_percent, p36_e_fg_percent FROM GameView WHERE season = %s AND pos = %s """
+        df = pd.read_sql(query, engine, params=(season, pos))
+
+
+    pl_df = pl.from_pandas(df)
+    data = pl_df.drop_nans().drop_nulls()
+
+    # z-score each component
+    data = data.with_columns([
+        ((pl.col("ast_per_36_min") - pl.col("ast_per_36_min").mean()) / pl.col("ast_per_36_min").std()).alias("ast_z"),
+        ((pl.col("tov_per_36_min") - pl.col("tov_per_36_min").mean()) / pl.col("tov_per_36_min").std()).alias("tov_z"),
+        ((pl.col("trb_per_36_min") - pl.col("trb_per_36_min").mean()) / pl.col("trb_per_36_min").std()).alias("trb_z"),
+        ((pl.col("pf_per_36_min") - pl.col("pf_per_36_min").mean()) / pl.col("pf_per_36_min").std()).alias("pf_z"),
+        ((pl.col("stl_per_36_min") - pl.col("stl_per_36_min").mean()) / pl.col("stl_per_36_min").std()).alias("stl_z"),
+        ((pl.col("blk_per_36_min") - pl.col("blk_per_36_min").mean()) / pl.col("blk_per_36_min").std()).alias("blk_z"),
+        ((pl.col("ts_percent") - pl.col("ts_percent").mean()) / pl.col("ts_percent").std()).alias("ts_z"),
+        ((pl.col("p36_e_fg_percent") - pl.col("p36_e_fg_percent").mean()) / pl.col("p36_e_fg_percent").std()).alias("efg_z")
+
+
+    ])
+
+    # maybe add weights?
+    data = data.with_columns([
+        (pl.col("ast_z") / pl.col("tov_z")).alias("playmaking_per_36_min"),
+        (pl.col("trb_z") + pl.col("pf_z")).alias("offensiveaggression_per_36_min"),
+        (pl.col("stl_z") + pl.col("pf_z") + pl.col("blk_z")).alias("defensiveaggression_per_36_min"),
+        (pl.col("ts_z") + pl.col("efg_z")).alias("shooting_per_36_min")
+
+    ])
+
+    data = data.drop(["ast_z", "tov_z", "trb_z", "pf_z", "stl_z", "blk_z", "ts_z", "efg_z", "ts_percent", "p36_e_fg_percent"])
 
     def findPlayerPercentiles(group_season):
         percentiled_columns = []
@@ -71,7 +106,7 @@ def player_attributes(player, season, engine):
         return updated_group
 
 
-    players_percentile = findPlayerPercentiles(szn)
+    players_percentile = findPlayerPercentiles(data)
     player_percentile = players_percentile.filter(pl.col("player") == player)
     return player_percentile
 
