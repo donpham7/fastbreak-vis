@@ -1,0 +1,3 @@
+[submodule "vendor/nba_api"]
+	path = vendor/nba_api
+	url = https://github.com/swar/nba_api.git
