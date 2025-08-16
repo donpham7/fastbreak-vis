@@ -1,6 +1,6 @@
 // import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import 'bulma/css/bulma.min.css';
+import "bulma/css/bulma.min.css";
 
 // Components or Pages
 import Home from "./pages/Home";
@@ -8,13 +8,15 @@ import About from "./pages/About";
 
 function App() {
   return (
-    <div className="has-background-white">
+    <div className="bg-white min-h-screen">
       <Router>
-        <nav className="p-4 bg-gray-200">
-          <Link to="/" className="mr-4">
+        <nav className="p-4 bg-white flex justify-center space-x-8 border-b border-gray-300">
+          <Link to="/" className="text-black hover:underline">
             Home
           </Link>
-          <Link to="/about">About</Link>
+          <Link to="/about" className="text-black hover:underline">
+            About
+          </Link>
         </nav>
 
         <Routes>

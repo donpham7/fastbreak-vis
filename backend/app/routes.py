@@ -6,8 +6,7 @@ import sqlalchemy
 from lib.models.player_similarity import player_similarity
 from lib.models.player_attributes import player_attributes
 from lib.models.player_shotchart import player_shotchart
-
-
+from nba_api.stats.endpoints import scoreboardv2 as scoreboard
 
 DATABASE_URL = "postgresql://u7btk4p5c5m73u:p8d8ff8ddeaabbc4fa6652587c63a9944594a63a232b3eba87c457007b20de8c6@cc6sr55p5nfmlu.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d6jnenvoupkq12"
 
@@ -21,22 +20,35 @@ def player_similarities(season, player_id):
     print({"season": res[0]["season"][0], "player_name": res[0]["player"][0]})
     return jsonify({"season": res[0]["season"][0], "player_name": res[0]["player"][0]})
 
+
 @main.route("/api/player_comparison/<season>/<player>")
 def mirror_bar_chart(season, player):
     query = """SELECT * FROM per_36_minutes WHERE player = %s AND season = %s"""
     player_df = pd.read_sql(query, engine, params=(player, season))
     if player_df.empty:
-        return jsonify({"error": f"No data found for player '{player}' in season '{season}'"}), 404
-    res = player_df.to_dict(orient='records')[0]
+        return (
+            jsonify(
+                {"error": f"No data found for player '{player}' in season '{season}'"}
+            ),
+            404,
+        )
+    res = player_df.to_dict(orient="records")[0]
     return jsonify(res), 200
+
 
 @main.route("/api/player_attributes/<season>/<player>/<scope>")
 def radar_chart(season, player, scope):
     player_df = player_attributes(player, season, scope, engine)
     if player_df.is_empty():
-        return jsonify({"error": f"No data found for player '{player}' in season '{season}'"}), 404
+        return (
+            jsonify(
+                {"error": f"No data found for player '{player}' in season '{season}'"}
+            ),
+            404,
+        )
     res = player_df.to_dicts()
     return jsonify(res), 200
+
 
 @main.route("/api/player_shotchart/<player>")
 def shot_chart(player):
@@ -45,3 +57,12 @@ def shot_chart(player):
         return jsonify({"error": f"No data found for player '{player}'"}), 404
     res = player_df.to_dicts()
     return jsonify(res), 200
+
+
+@main.route("/api/get_current_games")
+def get_current_games():
+    games = scoreboard.ScoreboardV2(
+        game_date="2025-04-10", league_id="00", day_offset=0
+    )
+    print(games)
+    return jsonify(games.get_dict()), 200
