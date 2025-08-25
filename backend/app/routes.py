@@ -7,6 +7,7 @@ from lib.models.player_similarity import player_similarity
 from lib.models.player_attributes import player_attributes
 from lib.models.player_shotchart import player_shotchart
 from nba_api.stats.endpoints import scoreboardv2 as scoreboard
+from lib import NbaApiHelper as NbaHelper
 
 DATABASE_URL = "postgresql://u7btk4p5c5m73u:p8d8ff8ddeaabbc4fa6652587c63a9944594a63a232b3eba87c457007b20de8c6@cc6sr55p5nfmlu.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d6jnenvoupkq12"
 
@@ -59,10 +60,11 @@ def shot_chart(player):
     return jsonify(res), 200
 
 
-@main.route("/api/get_current_games")
-def get_current_games():
-    games = scoreboard.ScoreboardV2(
-        game_date="2025-04-10", league_id="00", day_offset=0
+@main.route("/api/get_current_games/<year>/<month>/<day>")
+def get_current_games(year, month, day):
+    master_games = scoreboard.ScoreboardV2(
+        game_date=f"{year}-{month}-{day}", league_id="00", day_offset=0
     )
-    print(games)
-    return jsonify(games.get_dict()), 200
+    games = NbaHelper.master_game_table(master_games.get_data_frames(), year)
+    print(games.head())
+    return jsonify(games.to_dict(orient="records")), 200

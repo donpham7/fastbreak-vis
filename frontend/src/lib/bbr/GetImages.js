@@ -1,7 +1,7 @@
 // Simple fetcher for external team logos or images
-export async function fetchTeamLogo(teamCode = "NOP") {
-    const url = `https://cdn.ssref.net/req/202508011/tlogo/bbr/${teamCode}.png`;
-    console.log("Fetching team logo:", teamCode);
+export async function fetchTeamLogo(identifier) {
+    const url = `https://cdn.ssref.net/req/202508011/tlogo/bbr/${identifier}.png`;
+    console.log("Fetching team logo:", identifier);
     console.log("Fetching team logo from URL:", url);
     try {
         const response = await fetch(url);
@@ -16,4 +16,13 @@ export async function fetchTeamLogo(teamCode = "NOP") {
         console.error("Error fetching logo:", error);
         return null; // fallback for when fetch fails
     }
+}
+
+export function buildGameLogos(games) {
+    var links = games.map((game) => ({
+        home: `https://cdn.ssref.net/req/202508011/tlogo/bbr/${game.HOME_IMG}.png`,
+        away: `https://cdn.ssref.net/req/202508011/tlogo/bbr/${game.VISITOR_IMG}.png`,
+    }));
+    console.log("Built game logos:", links);
+    return links;
 }
