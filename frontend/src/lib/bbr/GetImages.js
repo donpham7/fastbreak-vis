@@ -20,9 +20,13 @@ export async function fetchTeamLogo(identifier) {
 
 export function buildGameLogos(games) {
     var links = games.map((game) => ({
-        home: `https://cdn.ssref.net/req/202508011/tlogo/bbr/${game.HOME_IMG}.png`,
-        away: `https://cdn.ssref.net/req/202508011/tlogo/bbr/${game.VISITOR_IMG}.png`,
+        home: buildTeamLogo(game.HOME_IMG),
+        away: buildTeamLogo(game.VISITOR_IMG),
     }));
     console.log("Built game logos:", links);
     return links;
+}
+
+export function buildTeamLogo(teamAbbr) {
+    return `https://cdn.ssref.net/req/202508011/tlogo/bbr/${teamAbbr}.png`;
 }

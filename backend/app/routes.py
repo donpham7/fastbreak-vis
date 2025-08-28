@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import polars as pl
 import pandas as pd
 import psycopg2
@@ -68,3 +68,18 @@ def get_current_games(year, month, day):
     games = NbaHelper.master_game_table(master_games.get_data_frames(), year)
     print(games.head())
     return jsonify(games.to_dict(orient="records")), 200
+
+@main.route("/api/get_standings/<season>")
+def get_standings(season):
+    print(f"Getting standings for season: {season}")
+    standings = NbaHelper.get_standings()
+    return jsonify(standings), 200
+
+@main.route("/api/players_by_stats", methods=["POST"])
+def players_by_stats():
+    data = request.get_json()
+    stats = data.get("stats", ["PTS"])
+    perGameFlags = data.get("perGameFlags", [True])
+    seasons = data.get("season", "2024-25")
+    players = NbaHelper.get_players_by_stats(stats, perGameFlags, seasons)
+    return jsonify(players), 200

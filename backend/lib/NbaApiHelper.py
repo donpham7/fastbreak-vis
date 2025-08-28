@@ -1,4 +1,5 @@
 from nba_api.stats.static import teams
+from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders
 
 nba_teams = teams.get_teams()
 id_to_abbr = {team["id"]: team["abbreviation"] for team in nba_teams}
@@ -82,3 +83,47 @@ def get_abbreviations_and_logos(games, year):
         axis=1,
     )
     return games
+
+
+def get_standings(season=None):
+    standings = leaguestandingsv3.LeagueStandingsV3().get_data_frames()[0]
+    standings = standings[["Conference", "ConferenceGamesBack", "WINS", "LOSSES", "L10", "ClinchIndicator", "TeamCity", "TeamName", "TeamID"]]
+    standings["TeamAbbr"] = standings.apply(
+        lambda row: get_team_abbreviation(row["TeamID"]), axis=1
+    )
+    standings["IMG"] = standings.apply(
+        lambda row: create_logo_lookup(row["TeamAbbr"], season if season else 2024),
+        axis=1,
+    )
+
+    print(standings)
+    
+
+    west = standings[standings["Conference"] == "West"].sort_values(by=["WINS"], ascending=[False]).to_dict(orient="records")
+    east = standings[standings["Conference"] == "East"].sort_values(by=["WINS"], ascending=[False]).to_dict(orient="records")
+
+    return {"East": east, "West": west}
+
+def get_players_by_stats(stats, perGameFlags, season):
+    print(f"Getting players by stats: {stats}, perGameFlags: {perGameFlags}, season: {season}")
+    print(f"Type of stats: {type(stats)}, Type of perGameFlags: {type(perGameFlags)}, Type of season: {type(season)}")
+    print(f"Length of stats: {len(stats)}, Length of perGameFlags: {len(perGameFlags)}")
+    leaders = leagueleaders.LeagueLeaders(season=season).get_data_frames()[0]
+    master = {}
+    for idx, stat in enumerate(stats):
+        print("enumerate", idx, stat, len(perGameFlags))
+        perGameFlag = perGameFlags[idx]
+        stat = stat.upper()
+        if stat not in leaders.columns:
+            return {"error": f"Stat '{stat}' not found."}
+        if perGameFlag:
+            cutoff = int(leaders["GP"].max() * 0.4)
+            leaders = leaders[leaders["GP"] >= cutoff]
+            leaders[stat + "_PG"] = (leaders[stat] / leaders["GP"]).round(1)
+            stat = stat + "_PG"
+        master[stat] = leaders[["PLAYER_ID", "PLAYER", "TEAM", stat]].sort_values(by=[stat], ascending=False).head(20).to_dict(orient="records")
+    # sorted_leaders = leaders.sort_values(by=[stat], ascending=False)
+    # sorted_leaders[stat] = sorted_leaders[stat].round(2)
+    # top_players = sorted_leaders[["PLAYER_ID", "PLAYER"] + ].head(20).to_dict(orient="records")
+    # return top_players
+    return master
