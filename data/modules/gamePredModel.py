@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import polars as pl
+import pandas as pd
 
 
 class GamePredModel(nn.Module):
@@ -14,6 +15,7 @@ class GamePredModel(nn.Module):
             nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Dropout(0.4)
         )
         self.hidden1 = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU())
+        self.hidden2 = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU())
 
         # MDN output heads
         self.pi = nn.Linear(hidden_dim, output_dim * n_components)
@@ -23,6 +25,7 @@ class GamePredModel(nn.Module):
     def forward(self, x):
         h = self.hidden(x)
         h = self.hidden1(h)
+        h = self.hidden2(h)
         # (B, D, K)
         pi = self.pi(h).view(-1, self.output_dim, self.n_components)
         pi = F.softmax(pi, dim=-1)  # mixture weights sum to 1
@@ -97,69 +100,20 @@ def get_players_from_game(game_id, game_csv_path, player_stats_path):
     return home_players, away_players
 
 
-def players_and_stats(raw_stats, game_id, game_csv_path, player_stats_path):
-    stats = [
-        "firstName",
-        "lastName",
-        "personId",
-        "points",
-        "assists",
-        "blocks",
-        "steals",
-        "fieldGoalsAttempted",
-        "fieldGoalsMade",
-        "threePointersAttempted",
-        "threePointersMade",
-        "freeThrowsAttempted",
-        "freeThrowsMade",
-        "reboundsTotal",
-        "turnovers",
-    ]
-    home_players, away_players = get_players_from_game(
-        game_id, game_csv_path, player_stats_path
-    )
-    player_stats = pl.read_csv(player_stats_path)
+def players_and_stats(raw_stats, game_id, data):
+    # Get player IDs for this game
+    ids = data[data["game_id"] == game_id].iloc[0, 4:34].values  # shape (30,)
+    stats_df = pd.DataFrame({'personId': ids})
 
-    home_player_names = (
-        player_stats.filter(
-            (pl.col("personId").is_in(home_players.select("personId").to_series()))
-            & (pl.col("gameId") == game_id)
-        )
-        .fill_null(0)
-        .sort(by="numMinutes", descending=True)
-        .select(["firstName", "lastName", "personId"])
-    )
+    # Assume raw_stats is a (1, m*30) numpy array
+    n_players = 30
+    stats = ["points", "assists", "blocks", "steals", "rebounds"]
+    n_stats = 5
+    stats_matrix = raw_stats.reshape(n_stats, n_players).T
 
-    away_player_names = (
-        player_stats.filter(
-            (pl.col("personId").is_in(away_players.select("personId").to_series()))
-            & (pl.col("gameId") == game_id)
-        )
-        .fill_null(0)
-        .sort(by="numMinutes", descending=True)
-        .select(["firstName", "lastName", "personId"])
-    )
+    # Add each stat as a column to stats_df
+    for i in range(len(stats)):
+        stats_df[stats[i]] = stats_matrix[:, i]
 
-    stats_tensor = raw_stats.squeeze(0)  # shape: (360,)
-    stats_np = stats_tensor.numpy().reshape(2, 15, 6)  # shape: (team, player, stat)
-
-    # Convert to Polars DataFrames
-    home_stats_df = pl.DataFrame(
-        stats_np[0],
-        schema=[
-            "points",
-            "assists",
-            "blocks",
-            "steals",
-            "reboundsTotal",
-            "turnovers",
-        ],
-    )
-
-    away_stats_df = pl.DataFrame(stats_np[1], schema=home_stats_df.columns)
-
-    # Now concatenate with name/gameId columns
-    home_df = pl.concat([home_player_names, home_stats_df], how="horizontal")
-    away_df = pl.concat([away_player_names, away_stats_df], how="horizontal")
-
-    return home_df, away_df
+    print(stats_df)
+    return stats_df
