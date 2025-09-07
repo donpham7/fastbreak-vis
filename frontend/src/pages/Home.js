@@ -35,7 +35,9 @@ export default function Home() {
     const [expandReboundsLeaders, setExpandReboundsLeaders] = useState(false);
     const [expandAssistsLeaders, setExpandAssistsLeaders] = useState(false);
     const [expandStealsLeaders, setExpandStealsLeaders] = useState(false);
-
+    const [videoUrl, setVideoUrl] = useState(
+        "https://videos.nba.com/nba/pbp/media/2025/04/01/0022401097/8/2fc68822-5c5f-2d02-eba9-d89deb148806_1280x720.mp4"
+    );
     const prevSlide = () =>
         setCurrent((current - 1 + images.length) % images.length);
     const nextSlide = () => setCurrent((current + 1) % images.length);
@@ -178,10 +180,13 @@ export default function Home() {
                                 key={idx}
                                 className="flex-shrink-0 w-full px-2"
                             >
-                                <img
-                                    src={src}
-                                    className="rounded-2xl shadow-lg w-full object-cover"
-                                />
+                                <div className="flex-shrink-0 w-full px-2">
+                                    <video
+                                        src={videoUrl}
+                                        controls
+                                        className="rounded-2xl shadow-lg w-full object-cover"
+                                    />
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -346,7 +351,7 @@ export default function Home() {
                                                 />
                                                 {/* Name and Team */}
                                                 <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
+                                                    <span className="font-semibold text-black leading-tight">
                                                         {player.PLAYER}
                                                     </span>
                                                     <span className="text-xs text-gray-500 leading-tight">
@@ -419,7 +424,7 @@ export default function Home() {
                                                 />
                                                 {/* Name and Team */}
                                                 <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
+                                                    <span className="font-semibold text-black leading-tight">
                                                         {player.PLAYER}
                                                     </span>
                                                     <span className="text-xs text-gray-500 leading-tight">
@@ -492,7 +497,7 @@ export default function Home() {
                                                 />
                                                 {/* Name and Team */}
                                                 <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
+                                                    <span className="font-semibold text-black leading-tight">
                                                         {player.PLAYER}
                                                     </span>
                                                     <span className="text-xs text-gray-500 leading-tight">
@@ -565,7 +570,7 @@ export default function Home() {
                                                 />
                                                 {/* Name and Team */}
                                                 <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
+                                                    <span className="font-semibold text-black leading-tight">
                                                         {player.PLAYER}
                                                     </span>
                                                     <span className="text-xs text-gray-500 leading-tight">

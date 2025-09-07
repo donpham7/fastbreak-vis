@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 // Components or Pages
 import Home from "./pages/Home";
 import About from "./pages/About";
+import Sandbox from "./pages/Sandbox";
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
+                    <Route path="/sandbox" element={<Sandbox />} />
                 </Routes>
             </Router>
         </div>

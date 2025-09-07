@@ -63,3 +63,29 @@ export async function getPlayersByStats(stats, perGameFlags, season = null) {
         return null; // fallback for when fetch fails
     }
 }
+
+export async function sendUserQuery(query) {
+    const url = "/api/user_query/bar_chart";
+    try {
+        const body = JSON.stringify({
+            query: query,
+        });
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: body,
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to send user query: ${response.statusText}`
+            );
+        }
+        return response.json();
+    } catch (error) {
+        console.log("Error sending user query:", error);
+        return null; // fallback for when fetch fails
+    }
+}
