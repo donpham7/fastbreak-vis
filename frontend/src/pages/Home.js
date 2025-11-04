@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import Header from './components/Header';
+import StandingList from './components/StandingList';
+import StatLeaderCard from './components/StatLeaderCard';
+import * as Separator from "@radix-ui/react-separator";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { DatePicker } from "./components/lib/Calender.js";
+// import { set } from "date-fns";
 import {
-    fetchTeamLogo,
+    // fetchTeamLogo,
     buildGameLogos,
     buildTeamLogo,
 } from "../lib/bbr/GetImages.js";
@@ -10,10 +16,6 @@ import {
     getStandings,
     getPlayersByStats,
 } from "../lib/serverFunctions/server_api.js";
-import { DatePicker } from "./components/lib/Calender.js";
-import * as Separator from "@radix-ui/react-separator";
-import { set } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = [
     "https://picsum.photos/id/1015/800/400",
@@ -31,10 +33,6 @@ export default function Home() {
     const [standingWest, setWestStanding] = useState([]);
     const [current, setCurrent] = useState(0);
     const [statsLeaders, setStatsLeaders] = useState({});
-    const [expandPointsLeaders, setExpandPointsLeaders] = useState(false);
-    const [expandReboundsLeaders, setExpandReboundsLeaders] = useState(false);
-    const [expandAssistsLeaders, setExpandAssistsLeaders] = useState(false);
-    const [expandStealsLeaders, setExpandStealsLeaders] = useState(false);
 
     // const expectedStatsHeaders = ["PTS_PG", "AST_PG", "REB_PG"];
 
@@ -161,22 +159,9 @@ export default function Home() {
 
     return (
         <div className="bg-surface_2">
-            <header className="sticky top-0 z-50 bg-black h-16 shadow-md">
-                <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-                    {/* Logo */}
-                    <div className="flex items-center space-x-4 overflow-visible">
-                        <img src="/fastbreak-logo.svg" alt="Logo" className="absolute top-[-30px] left-8 h-[126px] w-[126px] object-contain filter invert" />
-                    </div>
+            <Header />
 
-
-                    {/* Navigation */}
-                    <nav className="flex items-center space-x-6 text-white font-medium">
-                    <a href="/" className="hover:text-blue-600 transition">Home</a>
-                    <a href="/players" className="hover:text-blue-600 transition">Players</a>
-                    <a href="/games" className="hover:text-blue-600 transition">Games</a>
-                    </nav>
-                </div>
-            </header>
+            {/* Today's Games Section */}
 
             {games.length > 0 ? (
                 <div className="w-full overflow-x-auto">
@@ -231,6 +216,8 @@ export default function Home() {
             ) : (
                 <p className="text-center text-lg text-text py-4">No games today</p>
             )}
+
+            {/* Highlights Section */}
 
             <div className="relative w-full pt-4">
                 {/* Outer wrapper hides overflow */}
@@ -290,392 +277,49 @@ export default function Home() {
                     ))}
                 </div>
             </div>
+
+
             <div className="grid grid-cols-2 gap-4 m-4">
+
+                {/* Conference Standings Section */}
+
                 <div>
-                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 grid grid-cols-9 gap-4">
-                        <div className="flex flex-col justify-top col-span-4">
-                            <h2 className="text-xl font-bold mb-2">
-                                Western Conference
-                            </h2>
-                            <div className="flex flex-col p-3 gap-0">
-                                {standingWest.map((team, index) => (
-                                    <div
-                                        key={team.TeamAbbr}
-                                        className="flex items-center py-2 border-b last:border-b-0"
-                                    >
-                                        <div className="w-8 text-lg font-bold text-blue-600 text-center mr-4">
-                                            {index + 1}.
-                                        </div>
-                                        {/* Team logo */}
-                                        <img
-                                            src={standingWestLogos[index]}
-                                            alt={team.TeamAbbr}
-                                            className="w-10 h-10"
-                                        />
-                                        {/* City + Team name */}
-                                        <div className="flex flex-col ml-3 flex-1">
-                                            <span className="font-semibold">
-                                                {team.TeamName}
-                                            </span>
-                                            <span className="text-sm text-gray-500">
-                                                {team.TeamAbbr}{" "}
-                                                {team.ClinchIndicator}
-                                            </span>
-                                        </div>
-                                        {/* Record */}
-                                        <div className="text-right font-medium w-16">
-                                            {team.WINS}-{team.LOSSES}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 flex gap-8">
+                        <div className="flex-1 flex flex-col justify-start">
+                            <h2 className="text-xl font-bold mb-2">Western Conference</h2>
+                            <StandingList standingData={standingWest} logos={standingWestLogos} />
                         </div>
-                        <Separator.Root
-                            className="SeparatorRoot"
-                            decorative
-                            orientation="vertical"
-                            style={{ margin: "1px 1px" }}
-                        />
-                        <div className="flex flex-col justify-top col-span-4">
-                            <h2 className="text-xl font-bold mb-2">
-                                Eastern Conference
-                            </h2>
-                            <div className="flex flex-col p-3 gap-0">
-                                {standingEast.map((team, index) => (
-                                    <div
-                                        key={team.TeamAbbr}
-                                        className="flex items-center py-2 border-b last:border-b-0"
-                                    >
-                                        <div className="w-8 text-lg font-bold text-blue-600 text-center mr-4">
-                                            {index + 1}.
-                                        </div>
-                                        {/* Team logo */}
-                                        <img
-                                            src={standingEastLogos[index]}
-                                            alt={team.TeamAbbr}
-                                            className="w-10 h-10"
-                                        />
-                                        {/* City + Team name */}
-                                        <div className="flex flex-col ml-3 flex-1">
-                                            <span className="font-semibold">
-                                                {team.TeamName}
-                                            </span>
-                                            <span className="text-sm text-gray-500">
-                                                {team.TeamAbbr}{" "}
-                                                {team.ClinchIndicator}
-                                            </span>
-                                        </div>
-                                        {/* Record */}
-                                        <div className="text-right font-medium w-16">
-                                            {team.WINS}-{team.LOSSES}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+
+                        <div className="flex-1 flex flex-col justify-start">
+                            <h2 className="text-xl font-bold mb-2">Eastern Conference</h2>
+                            <StandingList standingData={standingEast} logos={standingEastLogos} />
                         </div>
                     </div>
                 </div>
+
+                {/* Leaders Section */}
+
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 ">
-                        <div className="flex flex-col justify-center">
-                            <h2 className="text-xl font-bold mb-2">
-                                Points per Game
-                            </h2>
-                            <div className="text-gray-600">
-                                <div
-                                    className={`transition-all duration-500 overflow-hidden ${
-                                        expandPointsLeaders
-                                            ? "max-h-[2000px] opacity-100"
-                                            : "max-h-[300px] opacity-90"
-                                    }`}
-                                >
-                                    {statsLeaders.PTS_PG &&
-                                        (expandPointsLeaders
-                                            ? statsLeaders.PTS_PG.slice(0, 20)
-                                            : statsLeaders.PTS_PG.slice(0, 5)
-                                        ).map((player, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-center py-2 border-b last:border-b-0"
-                                            >
-                                                {/* Rank */}
-                                                <div className="w-8 text-lg font-bold text-blue-600 text-center">
-                                                    {index + 1}.
-                                                </div>
-                                                {/* Player Image */}
-                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
-                                                    <img
-                                                        src={
-                                                            player.IMG ||
-                                                            `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png`
-                                                        }
-                                                        alt={player.PLAYER}
-                                                        className="w-10 h-10 rounded-full object-cover mx-2 border border-gray-300"
-                                                        onError={(e) => {
-                                                            e.target.onerror = null;
-                                                            e.target.src =
-                                                                "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                                                        }}
-                                                    />
-                                                    {/* Name and Team */}
-                                                    <div className="flex flex-col ml-2">
-                                                        <span className="font-semibold text-base leading-tight">
-                                                            {player.PLAYER}
-                                                        </span>
-                                                        <span className="text-xs text-gray-500 leading-tight">
-                                                            {player.TEAM}
-                                                        </span>
-                                                    </div>
-                                                </Link>
-                                                {/* Stat Value */}
-                                                <div className="ml-auto font-bold text-lg text-blue-700">
-                                                    {player.PTS_PG}
-                                                </div>
-                                            </div>
-                                        ))}
-                                </div>
-                                <div className="flex justify-center mt-2">
-                                    <button
-                                        className="ml-2 px-4 py-1 bg-blue-100 text-blue-600 font-semibold rounded-full shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                        onClick={() =>
-                                            setExpandPointsLeaders(
-                                                !expandPointsLeaders
-                                            )
-                                        }
-                                    >
-                                        {expandPointsLeaders
-                                            ? "Show Less"
-                                            : "Show More"}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 ">
-                        <div className="flex flex-col justify-center">
-                            <h2 className="text-xl font-bold mb-2">
-                                Rebounds per Game
-                            </h2>
-                            <div className="text-gray-600">
-                                <div
-                                    className={`transition-all duration-500 overflow-hidden ${
-                                        expandReboundsLeaders
-                                            ? "max-h-[2000px] opacity-100"
-                                            : "max-h-[300px] opacity-90"
-                                    }`}
-                                >
-                                    {statsLeaders.REB_PG &&
-                                        (expandReboundsLeaders
-                                            ? statsLeaders.REB_PG.slice(0, 20)
-                                            : statsLeaders.REB_PG.slice(0, 5)
-                                        ).map((player, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-center py-2 border-b last:border-b-0"
-                                            >
-                                                {/* Rank */}
-                                                <div className="w-8 text-lg font-bold text-blue-600 text-center">
-                                                    {index + 1}.
-                                                </div>
-                                                {/* Player Image */}
-                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
-                                                <img
-                                                    src={
-                                                        player.IMG ||
-                                                        `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png`
-                                                    }
-                                                    alt={player.PLAYER}
-                                                    className="w-10 h-10 rounded-full object-cover mx-2 border border-gray-300"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src =
-                                                            "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                                                    }}
-                                                />
-                                                {/* Name and Team */}
-                                                <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
-                                                        {player.PLAYER}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500 leading-tight">
-                                                        {player.TEAM}
-                                                    </span>
-                                                </div>
-                                                </Link>
-                                                {/* Stat Value */}
-                                                <div className="ml-auto font-bold text-lg text-blue-700">
-                                                    {player.REB_PG}
-                                                </div>
-                                            </div>
-                                        ))}
-                                </div>
-                                <div className="flex justify-center mt-2">
-                                    <button
-                                        className="ml-2 px-4 py-1 bg-blue-100 text-blue-600 font-semibold rounded-full shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                        onClick={() =>
-                                            setExpandReboundsLeaders(
-                                                !expandReboundsLeaders
-                                            )
-                                        }
-                                    >
-                                        {expandReboundsLeaders
-                                            ? "Show Less"
-                                            : "Show More"}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 ">
-                        <div className="flex flex-col justify-center">
-                            <h2 className="text-xl font-bold mb-2">
-                                Assists per Game
-                            </h2>
-                            <div className="text-gray-600">
-                                <div
-                                    className={`transition-all duration-500 overflow-hidden ${
-                                        expandAssistsLeaders
-                                            ? "max-h-[2000px] opacity-100"
-                                            : "max-h-[300px] opacity-90"
-                                    }`}
-                                >
-                                    {statsLeaders.AST_PG &&
-                                        (expandAssistsLeaders
-                                            ? statsLeaders.AST_PG.slice(0, 20)
-                                            : statsLeaders.AST_PG.slice(0, 5)
-                                        ).map((player, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-center py-2 border-b last:border-b-0"
-                                            >
-                                                {/* Rank */}
-                                                <div className="w-8 text-lg font-bold text-blue-600 text-center">
-                                                    {index + 1}.
-                                                </div>
-                                                {/* Player Image */}
-                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
-                                                <img
-                                                    src={
-                                                        player.IMG ||
-                                                        `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png`
-                                                    }
-                                                    alt={player.PLAYER}
-                                                    className="w-10 h-10 rounded-full object-cover mx-2 border border-gray-300"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src =
-                                                            "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                                                    }}
-                                                />
-                                                {/* Name and Team */}
-                                                <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
-                                                        {player.PLAYER}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500 leading-tight">
-                                                        {player.TEAM}
-                                                    </span>
-                                                </div>
-                                                </Link>
-                                                {/* Stat Value */}
-                                                <div className="ml-auto font-bold text-lg text-blue-700">
-                                                    {player.AST_PG}
-                                                </div>
-                                            </div>
-                                        ))}
-                                </div>
-                                <div className="flex justify-center mt-2">
-                                    <button
-                                        className="ml-2 px-4 py-1 bg-blue-100 text-blue-600 font-semibold rounded-full shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                        onClick={() =>
-                                            setExpandAssistsLeaders(
-                                                !expandAssistsLeaders
-                                            )
-                                        }
-                                    >
-                                        {expandAssistsLeaders
-                                            ? "Show Less"
-                                            : "Show More"}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 ">
-                        <div className="flex flex-col justify-center">
-                            <h2 className="text-xl font-bold mb-2">
-                                Steals per Game
-                            </h2>
-                            <div className="text-gray-600">
-                                <div
-                                    className={`transition-all duration-500 overflow-hidden ${
-                                        expandStealsLeaders
-                                            ? "max-h-[1000px] opacity-100"
-                                            : "max-h-[300px] opacity-90"
-                                    }`}
-                                >
-                                    {statsLeaders.STL_PG &&
-                                        (expandStealsLeaders
-                                            ? statsLeaders.STL_PG.slice(0, 20)
-                                            : statsLeaders.STL_PG.slice(0, 5)
-                                        ).map((player, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-center py-2 border-b last:border-b-0"
-                                            >
-                                                {/* Rank */}
-                                                <div className="w-8 text-lg font-bold text-blue-600 text-center">
-                                                    {index + 1}.
-                                                </div>
-                                                {/* Player Image */}
-                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
-                                                <img
-                                                    src={
-                                                        player.IMG ||
-                                                        `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png`
-                                                    }
-                                                    alt={player.PLAYER}
-                                                    className="w-10 h-10 rounded-full object-cover mx-2 border border-gray-300"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src =
-                                                            "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                                                    }}
-                                                />
-                                                {/* Name and Team */}
-                                                <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
-                                                        {player.PLAYER}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500 leading-tight">
-                                                        {player.TEAM}
-                                                    </span>
-                                                </div>
-                                                </Link>
-                                                {/* Stat Value */}
-                                                <div className="ml-auto font-bold text-lg text-blue-700">
-                                                    {player.STL_PG}
-                                                </div>
-                                            </div>
-                                        ))}
-                                </div>
-                                <div className="flex justify-center mt-2">
-                                    <button
-                                        className="ml-2 px-4 py-1 bg-blue-100 text-blue-600 font-semibold rounded-full shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                        onClick={() =>
-                                            setExpandStealsLeaders(
-                                                !expandStealsLeaders
-                                            )
-                                        }
-                                    >
-                                        {expandStealsLeaders
-                                            ? "Show Less"
-                                            : "Show More"}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <StatLeaderCard
+                        title="Points per Game"
+                        statKey="PTS_PG"
+                        data={statsLeaders.PTS_PG || []}
+                    />
+                    <StatLeaderCard
+                        title="Assists per Game"
+                        statKey="AST_PG"
+                        data={statsLeaders.AST_PG || []}
+                    />
+                    <StatLeaderCard
+                        title="Rebounds per Game"
+                        statKey="REB_PG"
+                        data={statsLeaders.REB_PG || []}
+                    />
+                    <StatLeaderCard
+                        title="Steals per Game"
+                        statKey="STL_PG"
+                        data={statsLeaders.STL_PG || []}
+                    />
                 </div>
             </div>
         </div>

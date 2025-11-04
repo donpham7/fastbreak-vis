@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Header from './components/Header';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
@@ -65,23 +66,7 @@ export default function Players() {
 
     return (
         <div className="bg-[#f5f5f5] min-h-screen">
-            <header className="sticky top-0 z-50 bg-black h-16 shadow-md">
-                <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-                    {/* Logo */}
-                    <div className="flex items-center space-x-4 overflow-visible">
-                        <img src="/fastbreak-logo.svg" alt="Logo" className="absolute top-[-30px] left-8 h-[126px] w-[126px] object-contain filter invert" />
-                    </div>
-
-
-                    {/* Navigation */}
-                    <nav className="flex items-center space-x-6 text-white font-medium">
-                        <a href="/" className="hover:text-blue-600 transition">Home</a>
-                        <a href="/players" className="hover:text-blue-600 transition">Players</a>
-                        <a href="/games" className="hover:text-blue-600 transition">Games</a>
-                    </nav>
-                </div>
-            </header>
-          
+            <Header/>
             <main className="flex justify-center items-start pt-10">
                 <div className="bg-white w-[70%] p-5 shadow-md rounded-lg flex flex-col">
                     <div className="flex justify-between items-center mb-4">
@@ -138,10 +123,7 @@ export default function Players() {
                                     <td className="p-2 bg-white text-sm font-sans">
                                     <div className="flex items-center space-x-2">
                                         <img                                     
-                                            src={
-                                                p.IMG ||
-                                                `https://cdn.nba.com/headshots/nba/latest/1040x760/${p.PERSON_ID}.png`
-                                            }
+                                            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${p.PERSON_ID}.png`}
                                             alt={p.DISPLAY_FIRST_LAST} 
                                             className="w-10 h-10 rounded-full object-cover border border-gray-300"
                                         />
