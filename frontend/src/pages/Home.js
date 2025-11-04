@@ -160,7 +160,7 @@ export default function Home() {
     }, [today]);
 
     return (
-        <div className="bg-[#f5f5f5]">
+        <div className="bg-surface_2">
             <header className="sticky top-0 z-50 bg-black h-16 shadow-md">
                 <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
                     {/* Logo */}
