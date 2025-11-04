@@ -1,12 +1,16 @@
-import {useState} from "react";
-import TopButtonBar from "./components/TopButtonBar.js";
-import DynamicPlayerForm from "./components/forms/DynamicPlayerForm.js";
-import ChartDisplay from "./components/ChartDisplay.js";
+import {useState, useEffect} from "react";
+import TopButtonBar from "./lib/TopButtonBar.js";
+import DynamicPlayerForm from "./forms/DynamicPlayerForm.js";
+import ChartDisplay from "./lib/ChartDisplay.js";
+import { useParams } from "react-router-dom";
+import Profile from "./lib/Profile.js";
 
 
 
-export default function About() {
-  const [activeView, setActiveView] = useState("comparison");
+
+export default function Player() {
+  const { id } = useParams();
+  const [activeView, setActiveView] = useState("attributes");
   const [isLoading, setIsLoading] = useState(false);
 
   const [playerAComparison, setplayerAComparison] = useState("");
@@ -29,7 +33,31 @@ export default function About() {
   
   
   let chartProps = {};
+  useEffect(() => {
+    if (!id) return;
 
+    const loadPlayer = async () => {
+      try {
+        const res = await fetch(`/api/player_info/${id}`);
+        const data = await res.json();
+
+        // Set default values for all chart views
+        setplayerAComparison(data.DISPLAY_FIRST_LAST);
+        setyearAComparison("2025");
+        setplayerBComparison(data.DISPLAY_FIRST_LAST);
+        setyearBComparison("2025");
+
+        setAttributesPlayer(data.DISPLAY_FIRST_LAST);
+        setAttributesYear("2025");
+
+        setShotChartPlayer(data.DISPLAY_FIRST_LAST);
+      } catch (err) {
+        console.error("Failed to load player info:", err);
+      }
+    };
+
+    loadPlayer();
+  }, [id]);
   if (activeView === "comparison") {
     chartProps = {
       playerAComparison,setplayerAComparison,
@@ -59,7 +87,8 @@ export default function About() {
     }
   }
   return (
-    <div className="about-page">
+    <div className="bg-surface_2">
+      <Profile id={id}/>
       <TopButtonBar setActiveView={setActiveView} />
       <DynamicPlayerForm activeView={activeView} chartProps={chartProps}/>
       <ChartDisplay activeView={activeView} chartProps={chartProps}/>

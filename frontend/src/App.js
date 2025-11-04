@@ -1,27 +1,17 @@
-// import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-// import "bulma/css/bulma.min.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Components or Pages
 import Home from "./pages/Home";
-import About from "./pages/About";
+import Player from "./pages/components/Player";
+import Players from "./pages/Players";
 
 function App() {
     return (
         <div className="bg-surface min-h-screen">
             <Router>
-                {/* <nav className="p-4 bg-white flex justify-center space-x-8 border-b border-gray-300">
-                    <Link to="/" className="text-black hover:underline">
-                        Home
-                    </Link>
-                    <Link to="/about" className="text-black hover:underline">
-                        About
-                    </Link>
-                </nav> */}
-
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
+                    <Route path="/player/:id" element={<Player />} />
+                    <Route path="/players" element={<Players />} />
                 </Routes>
             </Router>
         </div>

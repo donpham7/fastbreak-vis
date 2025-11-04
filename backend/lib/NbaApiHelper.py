@@ -1,5 +1,8 @@
-from nba_api.stats.static import teams
-from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders
+from nba_api.stats.static import teams, players
+from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders, commonplayerinfo
+import time, json, os
+import pandas as pd
+
 
 nba_teams = teams.get_teams()
 id_to_abbr = {team["id"]: team["abbreviation"] for team in nba_teams}
@@ -15,17 +18,22 @@ TEAMLEADERS = 7
 TICKETLINKS = 8
 
 
+def get_player_info(player_id):
+    info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+    result_set = info.get_dict()['resultSets'][0]
+    if not result_set:
+        return None
+    headers = result_set['headers']
+    values = result_set['rowSet'][0]
+    player_info = dict(zip(headers, values))
+
+    return player_info
+
+def get_player_id(player_name):
+    return players.find_players_by_full_name(player_name)
+
+
 def get_team_abbreviation(team_id):
-    """
-    Returns the abbreviation for a given NBA team ID.
-
-        team_id (int): The unique identifier for the NBA team.
-
-        str: The abbreviation corresponding to the provided team ID.
-
-    Raises:
-        KeyError: If the team_id does not exist in the id_to_abbr mapping.
-    """
     return id_to_abbr[team_id]
 
 
@@ -127,3 +135,10 @@ def get_players_by_stats(stats, perGameFlags, season):
     # top_players = sorted_leaders[["PLAYER_ID", "PLAYER"] + ].head(20).to_dict(orient="records")
     # return top_players
     return master
+
+
+def get_league_roster(engine):
+    query = 'SELECT "PERSON_ID", "DISPLAY_FIRST_LAST" FROM active_players WHERE "ROSTERSTATUS" = \'Active\''
+    df = pd.read_sql(query, engine)
+    return df.to_dict(orient='records')
+

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
     fetchTeamLogo,
     buildGameLogos,
@@ -20,6 +21,7 @@ const images = [
     "https://picsum.photos/id/1018/800/400",
 ];
 
+
 export default function Home() {
     const [games, setGames] = useState([]);
     const [logos, setLogos] = useState([]);
@@ -27,8 +29,6 @@ export default function Home() {
     const [standingEast, setEastStanding] = useState([]);
     const [standingWestLogos, setWestStandingLogos] = useState([]);
     const [standingWest, setWestStanding] = useState([]);
-    const [date, setDate] = useState(null);
-    const [showTodaysGames, setShowTodaysGames] = useState(true);
     const [current, setCurrent] = useState(0);
     const [statsLeaders, setStatsLeaders] = useState({});
     const [expandPointsLeaders, setExpandPointsLeaders] = useState(false);
@@ -36,28 +36,83 @@ export default function Home() {
     const [expandAssistsLeaders, setExpandAssistsLeaders] = useState(false);
     const [expandStealsLeaders, setExpandStealsLeaders] = useState(false);
 
+    // const expectedStatsHeaders = ["PTS_PG", "AST_PG", "REB_PG"];
+
+    /* 
+    ============================ Highlight Section ============================ 
+    */
     const prevSlide = () =>
         setCurrent((current - 1 + images.length) % images.length);
     const nextSlide = () => setCurrent((current + 1) % images.length);
-    const toggleTodaysGames = async () => {
-        setShowTodaysGames(!showTodaysGames);
-    };
 
-    const expectedStatsHeaders = ["PTS_PG", "AST_PG", "REB_PG"];
-    async function handleDateChange(date) {
-        var year = date.getFullYear();
-        var month = String(date.getMonth() + 1).padStart(2, "0");
-        var day = String(date.getDate()).padStart(2, "0");
+    /* 
+    ============================ Today's Games Section ============================ 
+    */
+
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const initialDate = new Date().toLocaleDateString('en-CA', {
+        timeZone: userTimeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+
+    const [today, setToday] = useState(initialDate);
+
+    function handleTodaysDate() {
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log("User's time zone:", userTimeZone); // e.g., "America/Chicago"
+
+        const localDate = new Date().toLocaleDateString('en-CA', {
+            timeZone: userTimeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        setToday(localDate);
+        console.log("Today's date:", today);
+
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(0, 0, 0, 0); 
+        midnight.setDate(midnight.getDate() + 1); 
+        const msUntilMidnight = midnight - now;
+
+
+        // Schedule update at midnight
+        const timeout = setTimeout(() => {
+            const updated = new Date();
+            const newLocalDate = updated.toLocaleDateString('en-CA', {
+                timeZone: userTimeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            setToday(newLocalDate);
+        }, msUntilMidnight);
+
+        // Cleanup function to clear timeout if component unmounts
+        return () => clearTimeout(timeout);
+    }
+
+
+    async function handleDateChange(today) {
+        let year, month, day;
+        [year, month, day] = today.split('-');
         var gamesData = await getGamesFromDate(year, month, day);
         if (!gamesData) {
-            console.log("No games data for today, fetching for 2025-04-11");
-            gamesData = [];
+            console.log("No games data for today, fetching for 2025-10-11");
+            gamesData = await getGamesFromDate("2025", "10", "11");
         }
         setGames(gamesData);
         setLogos(buildGameLogos(gamesData));
-        setDate(date);
         console.log("Fetched games data:", gamesData);
     }
+
+    /* 
+    ============================ Standings Section ============================ 
+    */
 
     async function handleStandings(year) {
         var standings = await getStandings(year || 2025);
@@ -76,6 +131,10 @@ export default function Home() {
         console.log("Fetched standings data:", standings);
     }
 
+    /* 
+    ============================ League Leaders Section ============================ 
+    */
+
     async function getLeagueLeaders() {
         console.log("Fetching league leaders for PTS, AST, REB");
         var leaders = await getPlayersByStats(
@@ -87,31 +146,41 @@ export default function Home() {
         setStatsLeaders(leaders);
     }
 
+    /* 
+    =============================================================================== 
+    */
     useEffect(() => {
-        handleDateChange(new Date(2025, 3, 11)); // Months are 0-indexed in JS Date
+        handleTodaysDate(); // run once
+    }, );
+
+    useEffect(() => {
+        handleDateChange(today); 
         handleStandings();
         getLeagueLeaders();
-    }, []);
+    }, [today]);
 
     return (
-        <div className="bg-surface_2">
-            {/* <div
-                className="flex flex-row items-center justify-center "
-                onClick={toggleTodaysGames}
-            >
-                {showTodaysGames ? (
-                    <p className="select-none cursor-pointer">
-                        Hide Today's Games
-                    </p>
-                ) : (
-                    <p className="select-none cursor-pointer">
-                        Show Today's Games
-                    </p>
-                )}
-            </div> */}
-            {showTodaysGames && (
-                <div className="w-full overflow-x-auto sticky bg-white top-0 z-50">
-                    <div className="flex flex-row ">
+        <div className="bg-[#f5f5f5]">
+            <header className="sticky top-0 z-50 bg-black h-16 shadow-md">
+                <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+                    {/* Logo */}
+                    <div className="flex items-center space-x-4 overflow-visible">
+                        <img src="/fastbreak-logo.svg" alt="Logo" className="absolute top-[-30px] left-8 h-[126px] w-[126px] object-contain filter invert" />
+                    </div>
+
+
+                    {/* Navigation */}
+                    <nav className="flex items-center space-x-6 text-white font-medium">
+                    <a href="/" className="hover:text-blue-600 transition">Home</a>
+                    <a href="/players" className="hover:text-blue-600 transition">Players</a>
+                    <a href="/games" className="hover:text-blue-600 transition">Games</a>
+                    </nav>
+                </div>
+            </header>
+
+            {games.length > 0 ? (
+                <div className="w-full overflow-x-auto">
+                    <div className="flex flex-row">
                         {games.map((game, index) => (
                             <div
                                 key={index}
@@ -130,13 +199,13 @@ export default function Home() {
                                         </span>
                                     </div>
                                     <h3 className="text-2xl ml-4 font-bold text-text">
-                                        {game.HOME_SCORE}
+                                        {game.HOME_SCORE === 0 ? '' : game.HOME_SCORE}
                                     </h3>
-                                    <h3 className=" text-text ml-2 text-sm font-bold">
+                                    <h3 className="text-text ml-2 text-sm font-bold">
                                         {game.GAME_STATUS_TEXT}
                                     </h3>
                                     <h3 className="text-2xl ml-2 font-bold text-text">
-                                        {game.AWAY_SCORE}
+                                        {game.AWAY_SCORE === 0 ? '' : game.AWAY_SCORE}
                                     </h3>
                                     {/* Away Logo */}
                                     <div className="flex flex-col ml-4 items-center w-12">
@@ -159,6 +228,8 @@ export default function Home() {
                         ))}
                     </div>
                 </div>
+            ) : (
+                <p className="text-center text-lg text-text py-4">No games today</p>
             )}
 
             <div className="relative w-full pt-4">
@@ -180,6 +251,7 @@ export default function Home() {
                             >
                                 <img
                                     src={src}
+                                    alt="Highlight"
                                     className="rounded-2xl shadow-lg w-full object-cover"
                                 />
                             </div>
@@ -218,7 +290,7 @@ export default function Home() {
                     ))}
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 m-4">
+            <div className="grid grid-cols-2 gap-4 m-4">
                 <div>
                     <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 grid grid-cols-9 gap-4">
                         <div className="flex flex-col justify-top col-span-4">
@@ -331,28 +403,30 @@ export default function Home() {
                                                     {index + 1}.
                                                 </div>
                                                 {/* Player Image */}
-                                                <img
-                                                    src={
-                                                        player.IMG ||
-                                                        `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png`
-                                                    }
-                                                    alt={player.PLAYER}
-                                                    className="w-10 h-10 rounded-full object-cover mx-2 border border-gray-300"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src =
-                                                            "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                                                    }}
-                                                />
-                                                {/* Name and Team */}
-                                                <div className="flex flex-col ml-2">
-                                                    <span className="font-semibold text-base leading-tight">
-                                                        {player.PLAYER}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500 leading-tight">
-                                                        {player.TEAM}
-                                                    </span>
-                                                </div>
+                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
+                                                    <img
+                                                        src={
+                                                            player.IMG ||
+                                                            `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png`
+                                                        }
+                                                        alt={player.PLAYER}
+                                                        className="w-10 h-10 rounded-full object-cover mx-2 border border-gray-300"
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src =
+                                                                "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
+                                                        }}
+                                                    />
+                                                    {/* Name and Team */}
+                                                    <div className="flex flex-col ml-2">
+                                                        <span className="font-semibold text-base leading-tight">
+                                                            {player.PLAYER}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500 leading-tight">
+                                                            {player.TEAM}
+                                                        </span>
+                                                    </div>
+                                                </Link>
                                                 {/* Stat Value */}
                                                 <div className="ml-auto font-bold text-lg text-blue-700">
                                                     {player.PTS_PG}
@@ -404,6 +478,7 @@ export default function Home() {
                                                     {index + 1}.
                                                 </div>
                                                 {/* Player Image */}
+                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
                                                 <img
                                                     src={
                                                         player.IMG ||
@@ -426,6 +501,7 @@ export default function Home() {
                                                         {player.TEAM}
                                                     </span>
                                                 </div>
+                                                </Link>
                                                 {/* Stat Value */}
                                                 <div className="ml-auto font-bold text-lg text-blue-700">
                                                     {player.REB_PG}
@@ -477,6 +553,7 @@ export default function Home() {
                                                     {index + 1}.
                                                 </div>
                                                 {/* Player Image */}
+                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
                                                 <img
                                                     src={
                                                         player.IMG ||
@@ -499,6 +576,7 @@ export default function Home() {
                                                         {player.TEAM}
                                                     </span>
                                                 </div>
+                                                </Link>
                                                 {/* Stat Value */}
                                                 <div className="ml-auto font-bold text-lg text-blue-700">
                                                     {player.AST_PG}
@@ -550,6 +628,7 @@ export default function Home() {
                                                     {index + 1}.
                                                 </div>
                                                 {/* Player Image */}
+                                                <Link to={`/player/${player.PLAYER_ID}`} className="flex items-center">
                                                 <img
                                                     src={
                                                         player.IMG ||
@@ -572,6 +651,7 @@ export default function Home() {
                                                         {player.TEAM}
                                                     </span>
                                                 </div>
+                                                </Link>
                                                 {/* Stat Value */}
                                                 <div className="ml-auto font-bold text-lg text-blue-700">
                                                     {player.STL_PG}
@@ -600,4 +680,4 @@ export default function Home() {
             </div>
         </div>
     );
-}
+};
