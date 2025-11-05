@@ -17,7 +17,13 @@ module.exports = {
                     DEFAULT: "#2b2b2bff", // light gray
                 },
             },
+            fontFamily: {
+                roboto: ['Roboto', 'sans-serif'],
+                knockout: ['Knockout', 'sans-serif'],
+            },
         },
     },
     plugins: [],
 };
+
+

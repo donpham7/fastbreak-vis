@@ -14,3 +14,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Knockout';
+  src: url('./assets/fonts/Knockout-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}

@@ -87,107 +87,96 @@ export default function Profile({ id }) {
         : "N/A";
 
     return (
-        <div className="w-screen">
+        <div className="w-screen overflow-hidden">
+
             {/* Profile Section */}
-            <div 
-                className="relative w-screen h-[43vh] shadow-md"
-                style={{ backgroundColor: team_color }}
+            <div
+            className="relative w-full h-[20vh] sm:h-[25vh] md:h-[38vh] flex"
+            style={{ backgroundColor: team_color }}
             >
-                {/* Player Info Text */}
-                <div className="absolute top-1/2 left-[55%] transform -translate-x-1/2 -translate-y-1/2 w-[min(90%,600px)] flex flex-col items-center gap-4 z-10">
-                    <div className="w-full text-left">
-                        <p className="text-[16px] text-white" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>
+                {/* Background Logo */}
+                <img
+                    src={logo}
+                    alt={player.DISPLAY_FIRST_LAST}
+                    className="absolute top-[85%] left-[25%] -translate-x-1/2 -translate-y-1/2 w-[60%] sm:w-[50%] md:w-[40%] h-auto w-full object-contain opacity-5 z-0"
+                    onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
+                    }}
+                />
+                {/* Player and Team Images and Player info */}
+                <div className="absolute bottom-0 left-4 sm:left-8 md:left-56 flex flex-row items-end space-x-3 sm:space-x-6 md:space-x-12 z-10">
+                    {/* Team Logo */}
+                    <img
+                    src={logo}
+                    alt={player.TEAM_NAME}
+                    className="h-[5vh] sm:h-[6vh] md:h-[8vh] lg:h-[10vh]
+                        w-auto object-contain self-start translate-x-6 sm:translate-x-10 md:translate-x-16
+                        -translate-y-6 sm:-translate-y-10 md:-translate-y-16"
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
+                    }}
+                    />
+
+                    {/* Player Image */}
+                    <img
+                    src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png`}
+                    alt={player.DISPLAY_FIRST_LAST}
+                    className="
+                        h-[18vh] sm:h-[22vh] md:h-[24vh] lg:h-[27vh]
+                        w-auto object-contain
+                    "
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png';
+                    }}
+                    />
+
+                    {/* Player Info */}
+                    <div className="max-w-[90%] sm:max-w-[70%] md:max-w-[600px] text-white text-left -translate-y-4 sm:-translate-y-10 md:-translate-y-20">
+                        <p className="text-sm md:text-base font-roboto">
                         {player.TEAM_CITY} {player.TEAM_NAME} | #{player.JERSEY} | {player.POSITION}
                         </p>
-                    </div>
-                    <div className="w-full text-left">
-                        <h2 className="text-[35px] font-bold uppercase leading-tight text-white" style={{ fontFamily: 'Knockout, Arial, sans-serif' }}>
+                        <h2 className="text-4xl md:text-6xl font-knockout uppercase leading-tight mt-2">
                         {player.FIRST_NAME}<br />
                         {player.LAST_NAME}
                         </h2>
                     </div>
                 </div>
 
-                {/* Player Image */}
-                <img
-                    src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png`}
-                    alt={player.DISPLAY_FIRST_LAST}
-                    className="absolute bottom-0 left-[25%] transform -translate-x-1/2 w-[20vw] h-[28vh] object-contain z-10"
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                    }}
-                />
-
-                {/* Team Logo */}
-                <img 
-                    src={logo}
-                    alt={player.DISPLAY_FIRST_LAST}
-                    className="absolute top-1/4 left-[15%] transform -translate-x-1/2 -translate-y-1/2 w-[10vw] h-[10vh] object-contain z-10"
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                    }}
-                />
-
-                {/* Background Logo */}
-                <img 
-                    src={logo}
-                    alt={player.DISPLAY_FIRST_LAST}
-                    className="absolute top-1/4 left-[25%] transform -translate-x-1/2 -translate-y-1/2 w-[75vw] h-[75vh] object-contain opacity-10 z-0"
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png";
-                    }}
-                />
             </div>
 
             {/* Bio Divider */}
             <div
-                className="w-screen h-[13vh] flex justify-center items-center border-t border-b border-white"
-                style={{
-                    backgroundColor: team_color,
-                    filter: "brightness(85%)",
-                }}
+            className="w-screen h-[12vh] flex justify-center items-center border-t border-b border-white"
+            style={{
+                backgroundColor: team_color,
+                filter: "brightness(85%)",
+            }}
             >
-                <div className="grid grid-cols-4 grid-rows-2 w-[45%] h-full">
-                    {/* Row 1 */}
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Height</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{formattedHeight}</span>
-                    </div>
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Weight</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{formattedWeight}</span>
-                    </div>
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Country</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{player.COUNTRY}</span>
-                    </div>
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Last Attended</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{player.SCHOOL || "N/A"}</span>
-                    </div>
-
-                    {/* Row 2 */}
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Age</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{calculatedAge}</span>
-                    </div>
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Birthdate</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{formattedBirthdate}</span>
-                    </div>
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Draft</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{formattedDraft}</span>
-                    </div>
-                    <div className="border border-white flex flex-col items-center justify-center text-white font-medium">
-                        <span className="text-[12px] uppercase" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>Experience</span>
-                        <span className="text-[16px]" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>{formattedExperience}</span>
-                    </div>
+            <div className="text-white font-medium grid grid-cols-4 grid-rows-2 w-[90%] sm:w-[75%] md:w-[45%] h-full">
+                {[
+                { label: "Height", value: formattedHeight },
+                { label: "Weight", value: formattedWeight },
+                { label: "Country", value: player.COUNTRY },
+                { label: "Last Attended", value: player.SCHOOL || "N/A" },
+                { label: "Age", value: calculatedAge },
+                { label: "Birthdate", value: formattedBirthdate },
+                { label: "Draft", value: formattedDraft },
+                { label: "Experience", value: formattedExperience },
+                ].map(({ label, value }) => (
+                <div
+                    key={label}
+                    className="border border-white p-2 flex flex-col items-center justify-center"
+                >
+                    <span className="text-xs uppercase font-roboto">{label}</span>
+                    <span className="text-sm md:text-base font-roboto">{value}</span>
                 </div>
+                ))}
+            </div>
             </div>
         </div>
-  );
+    );
+
 }
