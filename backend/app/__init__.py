@@ -15,7 +15,6 @@ def create_app():
     })
     cache.init_app(app)
 
-    # Register blueprints here
     from backend.app.routes import main
     app.register_blueprint(main)
 

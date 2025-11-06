@@ -1,7 +1,6 @@
 import sys, os
-from backend.app import create_app  # ✅ import from backend.app
+from backend.app import create_app  
 
-# Absolute path to ../vendor
 VENDOR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "vendor", "nba_api", "src"))
 sys.path.insert(0, VENDOR_PATH)
 
