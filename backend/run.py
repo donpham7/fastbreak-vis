@@ -9,7 +9,7 @@ def create_app():
     app = Flask(__name__, static_folder="../frontend/build", static_url_path="")
 
     # Register your blueprint
-    from .routes import main
+    from app.routes import main
     app.register_blueprint(main)
 
     # Serve React build
