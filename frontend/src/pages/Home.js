@@ -249,17 +249,17 @@ export default function Home() {
                 {/* Left button */}
                 <button
                     onClick={prevSlide}
-                    className="absolute top-1/2 left-2 -translate-y-1/2 bg-blue-100 text-blue-600 rounded-full p-2 shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                     className="absolute top-1/2 left-1 sm:left-2 -translate-y-1/2 bg-blue-100 text-blue-600 rounded-full p-1 sm:p-2 shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                    <ChevronLeft className="h-12 w-6" />
+                    <ChevronLeft className="h-6 w-3 sm:h-12 sm:w-6" />
                 </button>
 
                 {/* Right button */}
                 <button
                     onClick={nextSlide}
-                    className="absolute top-1/2 right-2 -translate-y-1/2 bg-blue-100 text-blue-600 rounded-full p-2 shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="absolute top-1/2 right-2 sm:right-2 -translate-y-1/2 bg-blue-100 text-blue-600 rounded-full p-2 shadow hover:bg-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                    <ChevronRight className="h-12 w-6" />
+                    <ChevronRight className="h-6 w-3 sm:h-12 sm:w-6" />
                 </button>
 
                 {/* Dots */}
@@ -279,19 +279,19 @@ export default function Home() {
             </div>
 
 
-            <div className="grid grid-cols-2 gap-4 m-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 m-4">
 
                 {/* Conference Standings Section */}
 
                 <div>
-                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-6 flex gap-8">
+                    <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-8">
                         <div className="flex-1 flex flex-col justify-start">
-                            <h2 className="text-xl font-bold mb-2">Western Conference</h2>
+                            <h2 className="text-xl sm:text-xl font-bold mb-2">Western Conference</h2>
                             <StandingList standingData={standingWest} logos={standingWestLogos} />
                         </div>
 
                         <div className="flex-1 flex flex-col justify-start">
-                            <h2 className="text-xl font-bold mb-2">Eastern Conference</h2>
+                            <h2 className="text-xl sm:text-xl font-bold mb-2">Eastern Conference</h2>
                             <StandingList standingData={standingEast} logos={standingEastLogos} />
                         </div>
                     </div>
@@ -299,7 +299,7 @@ export default function Home() {
 
                 {/* Leaders Section */}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <StatLeaderCard
                         title="Points per Game"
                         statKey="PTS_PG"

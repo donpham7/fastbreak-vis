@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, useMemo} from "react";
 import Header from './Header';
 import TopButtonBar from "./lib/TopButtonBar.js";
 import DynamicPlayerForm from "./forms/DynamicPlayerForm.js";
@@ -11,8 +11,10 @@ import Profile from "./lib/Profile.js";
 
 export default function Player() {
     const { id } = useParams();
+    const [playerLoaded, setPlayerLoaded] = useState(false);
     const [activeView, setActiveView] = useState("attributes");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isPageLoading, setIsPageLoading] = useState(false);
+    const [isChartLoading, setIsChartLoading] = useState(false);
 
     const [playerAComparison, setplayerAComparison] = useState("");
     const [yearAComparison, setyearAComparison] = useState("");
@@ -33,11 +35,12 @@ export default function Player() {
     const [shotChartData, setShotChartData] = useState(null); 
 
 
-    let chartProps = {};
     useEffect(() => {
         if (!id) return;
 
         const loadPlayer = async () => {
+            setIsPageLoading(true);
+            setPlayerLoaded(false);
             try {
                 const res = await fetch(`/api/player_info/${id}`);
                 const data = await res.json();
@@ -52,41 +55,64 @@ export default function Player() {
                 setAttributesYear("2025");
 
                 setShotChartPlayer(data.DISPLAY_FIRST_LAST);
-                } catch (err) {
+
+                setPlayerLoaded(true);
+            } catch (err) {
                 console.error("Failed to load player info:", err);
-            };
+            } finally {
+                setIsPageLoading(false);
+            }
         };
 
     loadPlayer();
     }, [id]);
 
-    if (activeView === "comparison") {
-        chartProps = {
+
+    const chartProps = useMemo(() => {
+        if (activeView === "comparison") return {
             playerAComparison,setplayerAComparison,
             yearAComparison,setyearAComparison,
             comparisonAData,setAComparisonData,
             playerBComparison,setplayerBComparison,
             yearBComparison,setyearBComparison,
             comparisonBData,setBComparisonData,
-            isLoading,setIsLoading
+            isLoading: isChartLoading,
+            setIsLoading: setIsChartLoading
         };
-    } 
-    else if (activeView === "attributes") {
-        chartProps = {
+
+        if (activeView === "attributes") return {
             chartType,setChartType,
             attributeScope,setAttributeScope,
             playerAttributes,setAttributesPlayer,
             yearAttributes,setAttributesYear,
             attributesData,setAttributesData,
-            isLoading,setIsLoading
+            isLoading: isChartLoading,
+            setIsLoading: setIsChartLoading
         };
-    }
-    else if (activeView === "shotchart") {
-        chartProps = {
+
+        if (activeView === "shotchart") return {
             playerShotChart,setShotChartPlayer,
             shotChartData,setShotChartData,
-            isLoading,setIsLoading
+            isLoading: isChartLoading,
+            setIsLoading: setIsChartLoading
         };
+        return {};
+    }, [
+        activeView, chartType, attributeScope,
+        playerAComparison, yearAComparison, comparisonAData,
+        playerBComparison, yearBComparison, comparisonBData,
+        playerAttributes, yearAttributes, attributesData,
+        playerShotChart, shotChartData, isChartLoading,
+    ]);
+
+    if (isPageLoading || !playerLoaded) {
+        return (
+            <div className="bg-surface_2 min-h-screen flex flex-col items-center justify-center">
+                <Header/>
+                <Profile id={id}/>
+                <p className="text-gray-600 text-lg mt-8">Loading player data...</p>
+            </div>
+        );
     }
 
     return (

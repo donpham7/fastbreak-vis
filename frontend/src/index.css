@@ -21,3 +21,13 @@ code {
   font-weight: normal;
   font-style: normal;
 }
+
+svg .tick text {
+  font-size: 14px;
+  /* font-weight: bold; */
+  stroke: white;
+  stroke-width: 4;
+  paint-order: stroke;
+  fill: black;
+  font-family: "Roboto", sans-serif;
+}

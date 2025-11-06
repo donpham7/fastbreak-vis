@@ -70,11 +70,19 @@ export default function MirrorBarChart({playerAData, playerBData}) {
 
         const maxA = Math.max(...playerA.map(d => d.data));
         const maxB = Math.max(...playerB.map(d => d.data));
-        const domainMax = Math.ceil(Math.max(maxA, maxB)) * 2;
+        const domainMax = Math.ceil(Math.max(maxA, maxB));
+
+        const width = ref.current?.clientWidth ?? 640;
+        const height = Math.max(400, 40 * playerA.length);
 
         const chart = Plot.plot({
-            height: 640, 
-            width: 640,
+            width,
+            height,
+            marginLeft: 40,
+            marginRight: 40,
+            marginTop: 40,
+            marginBottom: 40,
+
             label: null,
             x: {
                 axis: "top",
@@ -83,59 +91,64 @@ export default function MirrorBarChart({playerAData, playerBData}) {
                 tickSize: 0
             },
             y: { 
+                domain: sortedLabels,
+                label: null,
                 axis: null,
-                domain: sortedLabels
-            },
-            color: {
-                scheme: "PiYG",
-                type: "ordinal"
+
             },
             marks: [
                 Plot.barX(playerA, {x: (d) => -d.data, y: d => d.label, fill: "steelblue"}),
                 Plot.barX(playerB, {x: (d) => d.data, y: d => d.label, fill: "crimson"}),
                 
                 Plot.text(playerA, {
-                    x: -42,
+                    x: (d) => -d.data,
                     y: "label",
-                    text: (d) => d.label,
-                    textAnchor: "start",
+                    text: (d) => d.data.toFixed(1),
+                    textAnchor: "end",
+                    dx: -10,
                     fill: "black",
-                    fontSize: 16
-
-                }),
-
-                Plot.text(playerA, {
-                    x: d => -d.data,
-                    y: "label",
-                    text: d => d.data,
-                    textAnchor: "start",
-                    dx: -30,
-                    fill: "black",
-                    fontSize: 14
-
+                    fontWeight: "bold",
+                    fontSize: 18,
                 }),
 
                 Plot.text(playerB, {
-                    x: d => d.data,
+                    x: (d) => d.data,
                     y: "label",
-                    text: d => d.data,
+                    text: (d) => d.data.toFixed(1),
                     textAnchor: "start",
-                    dx: 5,
+                    dx: 10,
                     fill: "black",
-                    fontSize: 14
-
+                    fontWeight: "bold",
+                    fontSize: 18,
                 }),
 
                 Plot.gridX({ stroke: "white", strokeOpacity: 0.5 }),
-                Plot.ruleX([0])
+                Plot.ruleX([0]),
+
+                Plot.text(playerA, {
+                    x: -domainMax * 1.05,      // position outside bars
+                    y: d => d.label,
+                    text: d => d.label,
+                    textAnchor: "start",
+                    fill: "black",
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    stroke: "white",
+                    strokeWidth: 6,
+                    paintOrder: "stroke",
+                    fontFamily: "Roboto, sans-serif",
+                }),
+
             ]
         });
 
         ref.current.innerHTML = "";
         ref.current.append(chart);
 
+        
+
     }, [playerAData, playerBData]);
 
-    return <div ref={ref} />;
+    return <div ref={ref}  style={{ width: "100%" }}/>;
 
 }

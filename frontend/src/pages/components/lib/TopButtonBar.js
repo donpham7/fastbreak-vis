@@ -19,7 +19,7 @@ export default function TopButtonBar({ activeView, setActiveView }) {
                 <button
                     key={view}
                     onClick={() => setActiveView(view)}
-                    className={`w-full px-4 py-3 text-white font-bold rounded-xl shadow-md bg-gradient-to-r ${buttonStyles[view]} hover:scale-105 transform transition duration-200 border border-gray-200 ${
+                    className={`w-full px-4 py-3 text-white font-bold font-roboto rounded-xl shadow-md bg-gradient-to-r ${buttonStyles[view]} hover:scale-105 transform transition duration-200 border border-gray-200 ${
                     activeView === view ? "ring-2 ring-white" : ""
                     }`}
                 >

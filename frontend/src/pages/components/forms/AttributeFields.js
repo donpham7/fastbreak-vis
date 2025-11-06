@@ -32,23 +32,19 @@ export default function AttributeFields({ chartProps }) {
         if (chartProps.playerAttributes && chartProps.yearAttributes) {
             handleSearch();
         }
-    }, [chartProps.playerAttributes, chartProps.yearAttributes]);
+    }, []);
 
     return (
-        <div className="rounded-2xl border border-cyan-800 bg-gradient-to-br from-cyan-50 to-cyan-100 shadow-lg p-8 mb-6">
+        <div className="w-full md:w-[50%] rounded-2xl font-roboto border-red-800 bg-gradient-to-br from-cyan-700 to-[#00FF7F] shadow-lg p-4 sm:p-6 md:p-8 mx-auto mb-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-extrabold text-cyan-800 tracking-wide">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-wide">
                 Player Attributes
                 </h2>
-                <button
-                    onClick={handleSearch}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-700 to-cyan-600 text-white font-bold rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200"
-                >
-                Search
-                </button>
+
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[2fr_2fr_1fr_0.5fr] gap-6">
+
                 <input
                     type="text"
                     placeholder="Enter Player Name"
@@ -66,9 +62,15 @@ export default function AttributeFields({ chartProps }) {
                     onChange={(e) => chartProps.setAttributeScope(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
                 >
-                <option value="overall">Overall</option>
-                <option value="position">Position</option>
+                    <option value="overall">Overall</option>
+                    <option value="position">Position</option>
                 </select>
+                <button
+                    onClick={handleSearch}
+                    className="w-full sm:w-auto px-6 py-2 bg-cyan-700 text-white font-bold rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200"
+                >
+                Search
+                </button>
             </div>
         </div>
     );
