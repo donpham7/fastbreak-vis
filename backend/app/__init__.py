@@ -8,7 +8,7 @@ load_dotenv()
 cache = Cache()
 
 def create_app():
-    static_dir = os.path.join(os.path.dirname(__file__), "..", "frontend", "build")
+    static_dir = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "build")
     app = Flask(__name__, static_folder=static_dir, static_url_path="")
     app.config.from_mapping({
         "CACHE_TYPE": "simple",
