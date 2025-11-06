@@ -3,11 +3,11 @@ import polars as pl
 import pandas as pd
 import psycopg2
 import sqlalchemy
-from lib.models.player_similarity import player_similarity
-from lib.models.player_attributes import player_attributes
-from lib.models.player_shotchart import player_shotchart
+from backend.lib.models.player_similarity import player_similarity
+from backend.lib.models.player_attributes import player_attributes
+from backend.lib.models.player_shotchart import player_shotchart
 from nba_api.stats.endpoints import scoreboardv2 as scoreboard
-from lib import NbaApiHelper as NbaHelper
+from backend.lib.models import NbaApiHelper as NbaHelper
 import os
 
 # DATABASE_URL = "postgresql://u7btk4p5c5m73u:p8d8ff8ddeaabbc4fa6652587c63a9944594a63a232b3eba87c457007b20de8c6@cc6sr55p5nfmlu.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d6jnenvoupkq12"
