@@ -9,6 +9,8 @@ from backend.lib.models.player_shotchart import player_shotchart
 from nba_api.stats.endpoints import scoreboardv2 as scoreboard
 from backend.lib.models import NbaApiHelper as NbaHelper
 import os
+from backend.app import cache
+
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
@@ -64,6 +66,7 @@ def shot_chart(player):
 
 
 @main.route("/api/get_current_games/<year>/<month>/<day>")
+@cache.cached(timeout=300)  # cache for 5 minutes
 def get_current_games(year, month, day):
     master_games = scoreboard.ScoreboardV2(
         game_date=f"{year}-{month}-{day}", league_id="00", day_offset=0
@@ -75,6 +78,7 @@ def get_current_games(year, month, day):
 
 
 @main.route("/api/get_standings/<season>")
+@cache.cached(timeout=3600)  # Cache for 1 hour (3600 seconds)
 def get_standings(season):
     print(f"Getting standings for season: {season}")
     standings = NbaHelper.get_standings()

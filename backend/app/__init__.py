@@ -1,9 +1,23 @@
 from flask import Flask
+from flask_caching import Cache
+import os
+from dotenv import load_dotenv
+load_dotenv()  # load environment variables from .env if present
 
+
+# Create a cache instance (to be imported anywhere)
+cache = Cache()
 
 def create_app():
-    app = Flask(__name__)
-    from .routes import main
+    app = Flask(__name__, static_folder="../frontend/build", static_url_path="")
+    app.config.from_mapping({
+        "CACHE_TYPE": "simple",
+        "CACHE_DEFAULT_TIMEOUT": 300,
+    })
+    cache.init_app(app)
 
+    # Register blueprints here
+    from backend.app.routes import main
     app.register_blueprint(main)
+
     return app
