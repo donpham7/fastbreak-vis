@@ -2,10 +2,9 @@ from flask import Flask
 from flask_caching import Cache
 import os
 from dotenv import load_dotenv
-load_dotenv()  # load environment variables from .env if present
+load_dotenv()  
 
 
-# Create a cache instance (to be imported anywhere)
 cache = Cache()
 
 def create_app():
