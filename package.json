@@ -1,5 +1,7 @@
 {
   "name": "root-config",
   "private": true,
-  "workspaces": ["frontend"]
+  "scripts": {
+    "heroku-postbuild": "npm install --prefix frontend && npm run build --prefix frontend"
+  }
 }
