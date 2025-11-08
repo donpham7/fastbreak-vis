@@ -7,7 +7,7 @@ from .extensions import cache
 from .routes import register_routes
 
 # cache = Cache()
-
+ 
 def create_app():
     # Point to React build folder
     static_dir = os.path.join(os.path.dirname(__file__), "..", "frontend", "build")
