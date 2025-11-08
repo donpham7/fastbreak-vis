@@ -4,7 +4,8 @@ from app.models.player_similarity import player_similarity
 from app.models.player_attributes import player_attributes
 from app.models.player_shotchart import player_shotchart
 from app.models import nba_api_helper as NbaHelper
-from app.config import engine
+from app.extensions import engine
+
 
 player_bp = Blueprint("player", __name__)
 

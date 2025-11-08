@@ -3,12 +3,13 @@ from app.extensions import cache
 import pandas as pd
 from nba_api.stats.endpoints import scoreboardv2 as scoreboard
 from app.models import nba_api_helper as NbaHelper
-from app.config import engine
+from app.extensions import engine
+
 
 game_bp = Blueprint("game", __name__)
 
 @game_bp.route("/api/get_current_games/<year>/<month>/<day>")
-# @cache.cached(timeout=300)
+@cache.cached(timeout=86400)
 def get_current_games(year, month, day):
     master_games = scoreboard.ScoreboardV2(
         game_date=f"{year}-{month}-{day}", league_id="00", day_offset=0

@@ -14,6 +14,3 @@ class Config:
 
     CACHE_TYPE = os.getenv("CACHE_TYPE", "SimpleCache")
     CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "300"))
-
-# Shared SQLAlchemy engine
-engine = sqlalchemy.create_engine(Config.DATABASE_URL)

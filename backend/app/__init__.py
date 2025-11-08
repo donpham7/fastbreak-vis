@@ -6,7 +6,7 @@ from .config import Config
 from .extensions import cache
 from .routes import register_routes
 
-cache = Cache()
+# cache = Cache()
 
 def create_app():
     # Point to React build folder
