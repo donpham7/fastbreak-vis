@@ -19,6 +19,7 @@ def get_current_games(year, month, day):
     return jsonify(games.to_dict(orient="records")), 200
 
 @game_bp.route("/api/get_standings/<season>")
+@cache.cached(timeout=86400)
 def get_standings(season):
     standings = NbaHelper.get_standings()
     return jsonify(standings), 200
