@@ -1,0 +1,29 @@
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python caches (global safety net)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node / Yarn / npm caches (global safety net)
+node_modules/
+.pnp
+.pnp.js
+
+# Coverage reports
+coverage/

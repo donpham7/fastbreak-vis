@@ -1,8 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import Home from "./pages/Home";
-import Player from "./pages/components/Player";
-import Players from "./pages/Players";
+import { Home, Player, Players } from "@pages";
 
 function App() {
     return (
