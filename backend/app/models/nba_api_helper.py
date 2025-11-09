@@ -3,6 +3,33 @@ from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders, commonplay
 import time, json, os
 import pandas as pd
 
+import requests
+from app.extensions import cache
+
+PROXY_BASE = os.getenv("PROXY_BASE")
+PROXY_KEY = os.getenv("PROXY_KEY", "local-dev")
+
+def fetch_from_proxy(endpoint, params=None, timeout=3600):
+    """
+    Fetch data from your Render proxy and cache results.
+    """
+    if not PROXY_BASE:
+        raise RuntimeError("Missing PROXY_BASE environment variable")
+
+    cache_key = f"{endpoint}:{json.dumps(params, sort_keys=True)}"
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    url = f"{PROXY_BASE}/{endpoint}"
+    headers = {"X-Proxy-Key": PROXY_KEY}
+    resp = requests.get(url, params=params, headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
+
+    cache.set(cache_key, data, timeout=timeout)
+    return data
+
 
 nba_teams = teams.get_teams()
 id_to_abbr = {team["id"]: team["abbreviation"] for team in nba_teams}
@@ -19,8 +46,11 @@ TICKETLINKS = 8
 
 
 def get_player_info(player_id):
-    info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
-    result_set = info.get_dict()['resultSets'][0]
+    # info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+    # result_set = info.get_dict()['resultSets'][0]
+    data = fetch_from_proxy("stats/commonplayerinfo", params={"PlayerID": player_id})
+    result_set = data["resultSets"][0]
+
     if not result_set:
         return None
     headers = result_set['headers']
@@ -94,7 +124,11 @@ def get_abbreviations_and_logos(games, year):
 
 
 def get_standings(season=None):
-    standings = leaguestandingsv3.LeagueStandingsV3().get_data_frames()[0]
+    # standings = leaguestandingsv3.LeagueStandingsV3().get_data_frames()[0]
+
+    data = fetch_from_proxy("stats/leaguestandingsv3")
+    standings = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
+
     standings = standings[["Conference", "ConferenceGamesBack", "WINS", "LOSSES", "L10", "ClinchIndicator", "TeamCity", "TeamName", "TeamID"]]
     standings["TeamAbbr"] = standings.apply(
         lambda row: get_team_abbreviation(row["TeamID"]), axis=1
@@ -116,7 +150,11 @@ def get_players_by_stats(stats, perGameFlags, season):
     print(f"Getting players by stats: {stats}, perGameFlags: {perGameFlags}, season: {season}")
     print(f"Type of stats: {type(stats)}, Type of perGameFlags: {type(perGameFlags)}, Type of season: {type(season)}")
     print(f"Length of stats: {len(stats)}, Length of perGameFlags: {len(perGameFlags)}")
-    leaders = leagueleaders.LeagueLeaders(season=season).get_data_frames()[0]
+    # leaders = leagueleaders.LeagueLeaders(season=season).get_data_frames()[0]
+
+    data = fetch_from_proxy("stats/leagueleaders", params={"Season": season})
+    leaders = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
+
     master = {}
     for idx, stat in enumerate(stats):
         print("enumerate", idx, stat, len(perGameFlags))
