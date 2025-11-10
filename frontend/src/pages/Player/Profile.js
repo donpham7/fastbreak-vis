@@ -11,7 +11,7 @@ export default function Profile({ id }) {
     if (!id) return;
 
     setIsLoading(true);
-    fetch(`/api/player_info/${id}`)
+    fetch(`/api/players/info/${id}`)
         .then((res) => res.json())
         .then((data) => {
             if (!data || Object.keys(data).length === 0) {

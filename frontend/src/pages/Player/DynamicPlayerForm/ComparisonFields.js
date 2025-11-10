@@ -16,10 +16,10 @@ export default function ComparisonFields({ chartProps }) {
         chartProps.setIsLoading(true);
         Promise.all([
             fetch(
-            `/api/player_comparison/${chartProps.yearAComparison}/${chartProps.playerAComparison}`
+            `/api/players/comparison/${chartProps.yearAComparison}/${chartProps.playerAComparison}`
             ).then((res) => res.json()),
             fetch(
-            `/api/player_comparison/${chartProps.yearBComparison}/${chartProps.playerBComparison}`
+            `/api/players/comparison/${chartProps.yearBComparison}/${chartProps.playerBComparison}`
             ).then((res) => res.json()),
         ])
             .then(([dataA, dataB]) => {

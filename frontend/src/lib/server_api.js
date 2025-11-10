@@ -1,5 +1,5 @@
 export async function getGamesFromDate(year, month, day) {
-    const url = `/api/get_current_games/${year}/${month}/${day}`;
+    const url = `/api/games/current_games/${year}/${month}/${day}`;
     console.log(url);
     try {
         const response = await fetch(url);
@@ -15,7 +15,7 @@ export async function getGamesFromDate(year, month, day) {
 }
 
 export async function getStandings(year) {
-    const url = `/api/get_standings/${year}`;
+    const url = `/api/games/standings/${year}`;
     console.log(url);
     try {
         const response = await fetch(url);
@@ -34,7 +34,7 @@ export async function getStandings(year) {
 }
 
 export async function getPlayersByStats(stats, perGameFlags, season = null) {
-    var url = `/api/players_by_stats`;
+    var url = `/api/players/by_stats`;
     try {
         const body = JSON.stringify({
             stats: stats,

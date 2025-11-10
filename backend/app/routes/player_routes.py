@@ -1,20 +1,20 @@
 from flask import Blueprint, jsonify, request
 import pandas as pd
-from app.models.player_similarity import player_similarity
-from app.models.player_attributes import player_attributes
-from app.models.player_shotchart import player_shotchart
-from app.models import nba_api_helper as NbaHelper
-from app.extensions import engine
+from ..models.player_similarity import player_similarity
+from ..models.player_attributes import player_attributes
+from ..models.player_shotchart import player_shotchart
+from ..models import nba_api_helper as NbaHelper
+from ..extensions import engine
 
 
 player_bp = Blueprint("player", __name__)
 
-@player_bp.route("/api/player_similarities/<season>/<player_id>")
+@player_bp.route("/similarities/<season>/<player_id>")
 def player_similarities(season, player_id):
     res = player_similarity(player_id, season, engine)
     return jsonify({"season": res[0]["season"][0], "player_name": res[0]["player"][0]})
 
-@player_bp.route("/api/player_comparison/<season>/<player>")
+@player_bp.route("/comparison/<season>/<player>")
 def mirror_bar_chart(season, player):
     query = """SELECT * FROM per_36_minutes WHERE player = %s AND season = %s"""
     player_df = pd.read_sql(query, engine, params=(player, season))
@@ -22,25 +22,25 @@ def mirror_bar_chart(season, player):
         return jsonify({"error": f"No data found for {player} in {season}"}), 404
     return jsonify(player_df.to_dict(orient="records")[0]), 200
 
-@player_bp.route("/api/player_attributes/<season>/<player>/<scope>")
+@player_bp.route("/attributes/<season>/<player>/<scope>")
 def radar_chart(season, player, scope):
     player_df = player_attributes(player, season, scope, engine)
     if player_df.is_empty():
         return jsonify({"error": f"No data found for {player} in {season}"}), 404
     return jsonify(player_df.to_dicts()), 200
 
-@player_bp.route("/api/player_shotchart/<player>")
+@player_bp.route("/shotchart/<player>")
 def shot_chart(player):
     player_df = player_shotchart(player, engine)
     if player_df.is_empty():
         return jsonify({"error": f"No data found for {player}"}), 404
     return jsonify(player_df.to_dicts()), 200
 
-@player_bp.route("/api/player_info/<id>")
+@player_bp.route("/info/<id>")
 def player_info(id):
     return jsonify(NbaHelper.get_player_info(int(id))), 200
 
-@player_bp.route("/api/playerid")
+@player_bp.route("/playerid")
 def player_id():
     name = request.args.get("name", "")
     if not name:
@@ -48,7 +48,7 @@ def player_id():
     matched = NbaHelper.get_player_id(name)
     return jsonify({"player_id": matched[0]["id"] if matched else None})
 
-@player_bp.route("/api/search_players/<name>")
+@player_bp.route("/search/<name>")
 def search_players(name):
     name = name.lower().strip()
     league_roster = NbaHelper.get_league_roster(engine)
@@ -59,7 +59,7 @@ def search_players(name):
     ]
     return jsonify(matches[:10])
 
-@player_bp.route("/api/players_by_stats", methods=["POST"])
+@player_bp.route("/by_stats", methods=["POST"])
 def players_by_stats():
     data = request.get_json()
     stats = data.get("stats", ["PTS"])

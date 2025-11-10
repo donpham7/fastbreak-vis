@@ -11,7 +11,7 @@ export default function AttributeFields({ chartProps }) {
         }
 
         chartProps.setIsLoading(true);
-        fetch(`/api/player_attributes/${chartProps.yearAttributes}/${chartProps.playerAttributes}/${chartProps.attributeScope}`)
+        fetch(`/api/players/attributes/${chartProps.yearAttributes}/${chartProps.playerAttributes}/${chartProps.attributeScope}`)
             .then((res) => res.json())
             .then((data) => {
                 if (!Array.isArray(data) || data.length === 0) {

@@ -16,7 +16,7 @@ export default function Players() {
     useEffect(() => {
         const delayDebounce = setTimeout(async () => {
             if (search.trim()) {
-                const res = await fetch(`/api/search_players/${encodeURIComponent(search.trim())}`);
+                const res = await fetch(`/api/players/search/${encodeURIComponent(search.trim())}`);
                 const data = await res.json();
                 console.log("data", data)
                 setSuggestions(data); 
@@ -46,7 +46,7 @@ export default function Players() {
     };
 
     useEffect(() => {
-        fetch('/api/league_roster') 
+        fetch('/api/games/league_roster') 
             .then(res => res.json())
             .then(data => {
                 setPlayers(data)

@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify
-from app.extensions import cache
+from ..extensions import cache
 import pandas as pd, os
 from nba_api.stats.endpoints import scoreboardv2 as scoreboard
 # from app.models.nba_api_helper import fetch_from_proxy
 
-from app.models import nba_api_helper as NbaHelper
-from app.extensions import engine
+from ..models import nba_api_helper as NbaHelper
+from ..extensions import engine
 
 
 game_bp = Blueprint("game", __name__)
@@ -18,7 +18,7 @@ proxy_port = os.environ['PROXY_PORT']
 
 proxy_url = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
 
-@game_bp.route("/api/get_current_games/<year>/<month>/<day>")
+@game_bp.route("/current_games/<year>/<month>/<day>")
 @cache.cached(timeout=86400)
 def get_current_games(year, month, day):
     master_games = scoreboard.ScoreboardV2(
@@ -33,13 +33,13 @@ def get_current_games(year, month, day):
     # master_games.fillna(0, inplace=True)
     # return jsonify(master_games.to_dict(orient="records")), 200
 
-@game_bp.route("/api/get_standings/<season>")
+@game_bp.route("/standings/<season>")
 @cache.cached(timeout=86400)
 def get_standings(season):
     standings = NbaHelper.get_standings()
     return jsonify(standings), 200
 
-@game_bp.route("/api/league_roster")
+@game_bp.route("/league_roster")
 def league_roster():
     query = 'SELECT * FROM active_players WHERE "ROSTERSTATUS" = \'Active\''
     df = pd.read_sql(query, engine)

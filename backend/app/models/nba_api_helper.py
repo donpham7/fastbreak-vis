@@ -241,7 +241,7 @@ def get_players_by_stats(stats, perGameFlags, season):
     # data = fetch_from_proxy("stats/leagueleaders", params={"Season": season})
     # leaders = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
     season = get_current_season()
-    
+
     leaders_endpoint = leagueleaders.LeagueLeaders(
         season=season,
         league_id="00",

@@ -41,7 +41,7 @@ export default function Player() {
             setIsPageLoading(true);
             setPlayerLoaded(false);
             try {
-                const res = await fetch(`/api/player_info/${id}`);
+                const res = await fetch(`/api/players/info/${id}`);
                 const data = await res.json();
 
                 // Set default values for all chart views

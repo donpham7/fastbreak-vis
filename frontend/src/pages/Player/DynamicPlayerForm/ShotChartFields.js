@@ -10,7 +10,7 @@ export default function ShotChartFields({ chartProps }) {
         }
 
         chartProps.setIsLoading(true);
-        fetch(`/api/player_shotchart/${chartProps.playerShotChart}`)
+        fetch(`/api/players/shotchart/${chartProps.playerShotChart}`)
             .then((res) => res.json())
             .then((data) => {
             if (!Array.isArray(data) || data.length === 0) {
