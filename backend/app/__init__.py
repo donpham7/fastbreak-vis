@@ -1,6 +1,6 @@
 # app/__init__.py
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_caching import Cache
 from .config import Config
 from .extensions import cache
@@ -25,8 +25,11 @@ def create_app():
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
     def serve(path):
-        if path and os.path.exists(os.path.join(app.static_folder, path)):
-            return app.send_static_file(path)
-        return app.send_static_file("index.html")
+        # If the requested file exists in build/, serve it
+        file_path = os.path.join(app.static_folder, path)
+        if path != "" and os.path.exists(file_path):
+            return send_from_directory(app.static_folder, path)
+        # Otherwise, serve index.html so React Router can handle the route
+        return send_from_directory(app.static_folder, "index.html")
 
     return app
