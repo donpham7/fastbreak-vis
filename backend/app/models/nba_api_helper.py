@@ -1,6 +1,6 @@
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders, commonplayerinfo
-import pandas as pd
+import pandas as pd, os
 from flask import current_app
 from app.extensions import cache
 
@@ -8,87 +8,92 @@ from app.extensions import cache
 
 
 
-import httpx, os, random, ssl, time, json
+# import httpx, os, random, ssl, time, json
 
-def fetch_from_proxy(path, params, max_retries=3, cache_timeout=None):
-    cache_key = f"{path}:{json.dumps(params, sort_keys=True)}"
-    cached = cache.get(cache_key)
-    if cached:
-        print("DEBUG: Returning cached response for", path)
-        return cached
+# def fetch_from_proxy(path, params, max_retries=3, cache_timeout=None):
+#     cache_key = f"{path}:{json.dumps(params, sort_keys=True)}"
+#     cached = cache.get(cache_key)
+#     if cached:
+#         print("DEBUG: Returning cached response for", path)
+#         return cached
 
-    if cache_timeout is None:
-        cache_timeout = current_app.config.get("CACHE_DEFAULT_TIMEOUT", 300)
+#     if cache_timeout is None:
+#         cache_timeout = current_app.config.get("CACHE_DEFAULT_TIMEOUT", 300)
     
-    # Build proxy credentials
-    sessid = random.randint(10000, 99999)
-    proxy_user = f"{os.environ['PROXY_USER']}-sessid-{sessid}"
-    proxy_pass = os.environ['PROXY_PASS']
-    proxy_host = os.environ['PROXY_HOST']
-    proxy_port = os.environ['PROXY_PORT']
+#     # Build proxy credentials
+#     sessid = random.randint(10000, 99999)
+#     proxy_user = f"{os.environ['PROXY_USER']}-sessid-{sessid}"
+#     proxy_pass = os.environ['PROXY_PASS']
+#     proxy_host = os.environ['PROXY_HOST']
+#     proxy_port = os.environ['PROXY_PORT']
 
-    proxy_url = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
+#     proxy_url = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
 
-    # Construct full URL if only a path is passed
-    if not path.startswith("http"):
-        url = f"https://stats.nba.com/{path.lstrip('/')}"
-    else:
-        url = path
+#     # Construct full URL if only a path is passed
+#     if not path.startswith("http"):
+#         url = f"https://stats.nba.com/{path.lstrip('/')}"
+#     else:
+#         url = path
 
-    headers = {
-        "Host": "stats.nba.com",
-        "Connection": "keep-alive",
-        "Accept": "application/json, text/plain, */*",
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        ),
-        "Origin": "https://www.nba.com",
-        "Referer": "https://www.nba.com/",
-        "Accept-Encoding": "gzip, deflate, br",  # matches curl --compressed
-        "TE": "trailers"
-    }
-    ssl_context = ssl.create_default_context()
-    ssl_context.set_ciphers("DEFAULT:@SECLEVEL=1")
+#     headers = {
+#         "Host": "stats.nba.com",
+#         "Connection": "keep-alive",
+#         "Accept": "application/json, text/plain, */*",
+#         "User-Agent": (
+#             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+#             "AppleWebKit/537.36 (KHTML, like Gecko) "
+#             "Chrome/120.0.0.0 Safari/537.36"
+#         ),
+#         "Origin": "https://www.nba.com",
+#         "Referer": "https://www.nba.com/",
+#         "Accept-Encoding": "gzip, deflate, br",  # matches curl --compressed
+#         "TE": "trailers"
+#     }
+#     ssl_context = ssl.create_default_context()
+#     ssl_context.set_ciphers("DEFAULT:@SECLEVEL=1")
 
-    # transport = httpx.HTTPTransport(http1=True, http2=False, ssl_context=ssl_context)
-    timeout = httpx.Timeout(connect=10.0, read=120.0, write=10.0, pool=10.0)
+#     # transport = httpx.HTTPTransport(http1=True, http2=False, ssl_context=ssl_context)
+#     timeout = httpx.Timeout(connect=10.0, read=120.0, write=10.0, pool=10.0)
 
-    for attempt in range(1, max_retries + 1):
-        try:
-            with httpx.Client(
-                proxy=proxy_url,
-                headers=headers,
-                timeout=timeout,
-                http1=True,
-                http2=False,
-                verify=ssl_context,
-                limits=httpx.Limits(max_keepalive_connections=0)
-            ) as client:
-                resp = client.get(url, params=params)
+#     for attempt in range(1, max_retries + 1):
+#         try:
+#             with httpx.Client(
+#                 proxy=proxy_url,
+#                 headers=headers,
+#                 timeout=timeout,
+#                 http1=True,
+#                 http2=False,
+#                 verify=ssl_context,
+#                 limits=httpx.Limits(max_keepalive_connections=0)
+#             ) as client:
+#                 resp = client.get(url, params=params)
 
-                # 🔎 Debug logging
-                print("DEBUG: Final URL:", resp.request.url)
-                print("DEBUG: Sent headers:", resp.request.headers)
-                print("DEBUG: Status code:", resp.status_code)
-                print("DEBUG: First 500 chars of body:\n", resp.text[:500])
+#                 # 🔎 Debug logging
+#                 print("DEBUG: Final URL:", resp.request.url)
+#                 print("DEBUG: Sent headers:", resp.request.headers)
+#                 print("DEBUG: Status code:", resp.status_code)
+#                 print("DEBUG: First 500 chars of body:\n", resp.text[:500])
 
-                resp.raise_for_status()
-                data = resp.json()
-                cache.set(cache_key, data, timeout=cache_timeout)
-                return data
+#                 resp.raise_for_status()
+#                 data = resp.json()
+#                 cache.set(cache_key, data, timeout=cache_timeout)
+#                 return data
 
-        except Exception as e:
-            print(f"⚠️ Attempt {attempt} failed with error: {type(e).__name__}: {e}")
-            if attempt < max_retries:
-                time.sleep(5)
-            else:
-                raise
-
-
+#         except Exception as e:
+#             print(f"⚠️ Attempt {attempt} failed with error: {type(e).__name__}: {e}")
+#             if attempt < max_retries:
+#                 time.sleep(5)
+#             else:
+#                 raise
 
 
+
+proxy_user = os.environ['PROXY_USER']
+proxy_pass = os.environ['PROXY_PASS']
+proxy_host = os.environ['PROXY_HOST']
+proxy_port = os.environ['PROXY_PORT']
+
+proxy_url = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
 
 
 
@@ -108,10 +113,10 @@ TICKETLINKS = 8
 
 
 def get_player_info(player_id):
-    # info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
-    # result_set = info.get_dict()['resultSets'][0]
-    data = fetch_from_proxy("stats/commonplayerinfo", params={"PlayerID": player_id})
-    result_set = data["resultSets"][0]
+    info = commonplayerinfo.CommonPlayerInfo(player_id=player_id, proxy=proxy_url)
+    result_set = info.get_dict()['resultSets'][0]
+    # data = fetch_from_proxy("stats/commonplayerinfo", params={"PlayerID": player_id})
+    # result_set = data["resultSets"][0]
 
     if not result_set:
         return None
@@ -188,16 +193,25 @@ def get_abbreviations_and_logos(games, year):
 def get_standings(season=None):
     # standings = leaguestandingsv3.LeagueStandingsV3().get_data_frames()[0]
 
-    data = fetch_from_proxy(
-    "stats/leaguestandingsv3",
-    params={
-        "LeagueID": "00",
-        "Season": "2024-25",
-        "SeasonType": "Regular Season",
-    }
-)
-    standings = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
+    # data = fetch_from_proxy(
+    #     "stats/leaguestandingsv3",
+    #     params={
+    #         "LeagueID": "00",
+    #         "Season": "2024-25",
+    #         "SeasonType": "Regular Season",
+    #     }
+    # )
+    # standings = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
 
+    standings_endpoint = leaguestandingsv3.LeagueStandingsV3(
+            season=season if season else "2024-25",
+            league_id="00",
+            proxy=proxy_url
+        )
+
+    # Get the first DataFrame (the standings table)
+    standings = standings_endpoint.get_data_frames()[0]
+    
     standings = standings[["Conference", "ConferenceGamesBack", "WINS", "LOSSES", "L10", "ClinchIndicator", "TeamCity", "TeamName", "TeamID"]]
     standings["TeamAbbr"] = standings.apply(
         lambda row: get_team_abbreviation(row["TeamID"]), axis=1
@@ -221,8 +235,17 @@ def get_players_by_stats(stats, perGameFlags, season):
     print(f"Length of stats: {len(stats)}, Length of perGameFlags: {len(perGameFlags)}")
     # leaders = leagueleaders.LeagueLeaders(season=season).get_data_frames()[0]
 
-    data = fetch_from_proxy("stats/leagueleaders", params={"Season": season})
-    leaders = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
+    # data = fetch_from_proxy("stats/leagueleaders", params={"Season": season})
+    # leaders = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
+    leaders_endpoint = leagueleaders.LeagueLeaders(
+        season=season,
+        league_id="00",
+        stat_category_abbreviation="PTS",  # default category, but DataFrame includes all stats
+        proxy=proxy_url
+    )
+
+    # Get the DataFrame
+    leaders = leaders_endpoint.get_data_frames()[0]
 
     master = {}
     for idx, stat in enumerate(stats):
