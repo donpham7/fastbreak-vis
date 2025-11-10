@@ -1,8 +1,10 @@
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders, commonplayerinfo
 import pandas as pd, os
-from flask import current_app
-from app.extensions import cache
+from datetime import date
+
+# from flask import current_app
+# from app.extensions import cache
 
 
 
@@ -203,6 +205,7 @@ def get_standings(season=None):
     # )
     # standings = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
 
+    season = get_current_season()
     standings_endpoint = leaguestandingsv3.LeagueStandingsV3(
             season=season if season else "2024-25",
             league_id="00",
@@ -237,6 +240,8 @@ def get_players_by_stats(stats, perGameFlags, season):
 
     # data = fetch_from_proxy("stats/leagueleaders", params={"Season": season})
     # leaders = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
+    season = get_current_season()
+    
     leaders_endpoint = leagueleaders.LeagueLeaders(
         season=season,
         league_id="00",
@@ -272,3 +277,14 @@ def get_league_roster(engine):
     df = pd.read_sql(query, engine)
     return df.to_dict(orient='records')
 
+
+def get_current_season():
+    today = date.today()
+    year = today.year
+    month = today.month
+
+    # NBA season starts in October
+    if month >= 10:  
+        return f"{year}-{str(year+1)[-2:]}"
+    else:
+        return f"{year-1}-{str(year)[-2:]}"
