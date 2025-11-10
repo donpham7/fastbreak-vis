@@ -10,6 +10,7 @@ from app.extensions import engine
 
 game_bp = Blueprint("game", __name__)
 
+
 @game_bp.route("/api/get_current_games/<year>/<month>/<day>")
 @cache.cached(timeout=86400)
 def get_current_games(year, month, day):

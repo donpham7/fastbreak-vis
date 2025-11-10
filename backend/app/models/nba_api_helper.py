@@ -1,34 +1,96 @@
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import leaguestandingsv3, leagueleaders, commonplayerinfo
-import time, json, os
 import pandas as pd
-
-import requests
+from flask import current_app
 from app.extensions import cache
 
-PROXY_BASE = os.getenv("PROXY_BASE")
-PROXY_KEY = os.getenv("PROXY_KEY", "local-dev")
 
-def fetch_from_proxy(endpoint, params=None, timeout=3600):
-    """
-    Fetch data from your Render proxy and cache results.
-    """
-    if not PROXY_BASE:
-        raise RuntimeError("Missing PROXY_BASE environment variable")
 
-    cache_key = f"{endpoint}:{json.dumps(params, sort_keys=True)}"
+
+
+import httpx, os, random, ssl, time, json
+
+def fetch_from_proxy(path, params, max_retries=3, cache_timeout=None):
+    cache_key = f"{path}:{json.dumps(params, sort_keys=True)}"
     cached = cache.get(cache_key)
     if cached:
+        print("DEBUG: Returning cached response for", path)
         return cached
 
-    url = f"{PROXY_BASE}/{endpoint}"
-    headers = {"X-Proxy-Key": PROXY_KEY}
-    resp = requests.get(url, params=params, headers=headers)
-    resp.raise_for_status()
-    data = resp.json()
+    if cache_timeout is None:
+        cache_timeout = current_app.config.get("CACHE_DEFAULT_TIMEOUT", 300)
+    
+    # Build proxy credentials
+    sessid = random.randint(10000, 99999)
+    proxy_user = f"{os.environ['PROXY_USER']}-sessid-{sessid}"
+    proxy_pass = os.environ['PROXY_PASS']
+    proxy_host = os.environ['PROXY_HOST']
+    proxy_port = os.environ['PROXY_PORT']
 
-    cache.set(cache_key, data, timeout=timeout)
-    return data
+    proxy_url = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
+
+    # Construct full URL if only a path is passed
+    if not path.startswith("http"):
+        url = f"https://stats.nba.com/{path.lstrip('/')}"
+    else:
+        url = path
+
+    headers = {
+        "Host": "stats.nba.com",
+        "Connection": "keep-alive",
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Origin": "https://www.nba.com",
+        "Referer": "https://www.nba.com/",
+        "Accept-Encoding": "gzip, deflate, br",  # matches curl --compressed
+        "TE": "trailers"
+    }
+    ssl_context = ssl.create_default_context()
+    ssl_context.set_ciphers("DEFAULT:@SECLEVEL=1")
+
+    # transport = httpx.HTTPTransport(http1=True, http2=False, ssl_context=ssl_context)
+    timeout = httpx.Timeout(connect=10.0, read=120.0, write=10.0, pool=10.0)
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            with httpx.Client(
+                proxy=proxy_url,
+                headers=headers,
+                timeout=timeout,
+                http1=True,
+                http2=False,
+                verify=ssl_context,
+                limits=httpx.Limits(max_keepalive_connections=0)
+            ) as client:
+                resp = client.get(url, params=params)
+
+                # 🔎 Debug logging
+                print("DEBUG: Final URL:", resp.request.url)
+                print("DEBUG: Sent headers:", resp.request.headers)
+                print("DEBUG: Status code:", resp.status_code)
+                print("DEBUG: First 500 chars of body:\n", resp.text[:500])
+
+                resp.raise_for_status()
+                data = resp.json()
+                cache.set(cache_key, data, timeout=cache_timeout)
+                return data
+
+        except Exception as e:
+            print(f"⚠️ Attempt {attempt} failed with error: {type(e).__name__}: {e}")
+            if attempt < max_retries:
+                time.sleep(5)
+            else:
+                raise
+
+
+
+
+
+
 
 
 nba_teams = teams.get_teams()
@@ -126,7 +188,14 @@ def get_abbreviations_and_logos(games, year):
 def get_standings(season=None):
     # standings = leaguestandingsv3.LeagueStandingsV3().get_data_frames()[0]
 
-    data = fetch_from_proxy("stats/leaguestandingsv3")
+    data = fetch_from_proxy(
+    "stats/leaguestandingsv3",
+    params={
+        "LeagueID": "00",
+        "Season": "2024-25",
+        "SeasonType": "Regular Season",
+    }
+)
     standings = pd.DataFrame(data["resultSets"][0]["rowSet"], columns=data["resultSets"][0]["headers"])
 
     standings = standings[["Conference", "ConferenceGamesBack", "WINS", "LOSSES", "L10", "ClinchIndicator", "TeamCity", "TeamName", "TeamID"]]
