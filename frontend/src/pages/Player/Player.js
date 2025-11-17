@@ -33,6 +33,42 @@ export default function Player() {
     const [playerShotChart, setShotChartPlayer] = useState(null); 
     const [shotChartData, setShotChartData] = useState(null); 
 
+    // Removes accents, normalizes spacing, hyphenated names, apostrophes, and suffixes
+    const normalizePlayerName = (str) => {
+    // 1. Remove accents/diacritics
+    let clean = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // 2. Normalize spacing
+    clean = clean.replace(/\s+/g, " ").trim();
+
+    // 3. Auto-capitalize each word, including hyphenated and apostrophe parts
+    const capitalizeWord = (word) => {
+        return word
+        .split(/[-']/) // split on hyphen or apostrophe
+        .map(
+            (part) =>
+            part.length > 0
+                ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                : ""
+        )
+        .join(word.includes("-") ? "-" : "'"); // rejoin with original separator
+    };
+
+    clean = clean
+        .split(" ")
+        .map(capitalizeWord)
+        .join(" ");
+
+    // 4. Normalize suffixes
+    clean = clean.replace(/\bJr\b\.?/i, "Jr."); // always "Jr."
+    clean = clean.replace(/\bIi\b/i, "II");     // always "II"
+    clean = clean.replace(/\bIii\b/i, "III");   // always "III"
+
+    return clean;
+    };
+
+
+
 
     useEffect(() => {
         if (!id) return;
@@ -44,16 +80,19 @@ export default function Player() {
                 const res = await fetch(`/api/players/info/${id}`);
                 const data = await res.json();
 
+                // Strip accents from player name
+                const cleanName = normalizePlayerName(data.DISPLAY_FIRST_LAST);
+
                 // Set default values for all chart views
-                setplayerAComparison(data.DISPLAY_FIRST_LAST);
+                setplayerAComparison(cleanName);
                 setyearAComparison("2025");
-                setplayerBComparison(data.DISPLAY_FIRST_LAST);
+                setplayerBComparison(cleanName);
                 setyearBComparison("2025");
 
-                setAttributesPlayer(data.DISPLAY_FIRST_LAST);
+                setAttributesPlayer(cleanName);
                 setAttributesYear("2025");
 
-                setShotChartPlayer(data.DISPLAY_FIRST_LAST);
+                setShotChartPlayer(cleanName);
 
                 setPlayerLoaded(true);
             } catch (err) {
@@ -62,6 +101,7 @@ export default function Player() {
                 setIsPageLoading(false);
             }
         };
+
 
     loadPlayer();
     }, [id]);

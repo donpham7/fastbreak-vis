@@ -43,20 +43,39 @@ export default function AttributeFields({ chartProps }) {
 
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[2fr_2fr_1fr_0.5fr] gap-6">
-
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault(); // prevent page reload
+                    if (e.target.checkValidity()) {
+                    handleSearch(); // only call backend if valid
+                    } else {
+                    e.target.reportValidity(); // show native error messages
+                    }
+                }}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[2fr_2fr_1fr_0.5fr] gap-6"
+                >
                 <input
                     type="text"
-                    placeholder="Enter Player Name"
+                    placeholder="Enter First Last name"
                     onChange={(e) => chartProps.setAttributesPlayer(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                    required
+                    pattern="^[A-Z][a-z]+ [A-Z][a-z]+(?:-[A-Z][a-z]+)?(?: (Jr\.|II|III))?$"
+                    title="Format: Firstname Lastname (case-sensitive, no accents). Hyphenated last names and suffixes Jr., II, III allowed."
                 />
+
                 <input
-                    type="text"
+                    type="number"
                     placeholder="Enter Year (e.g. 2023)"
                     onChange={(e) => chartProps.setAttributesYear(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                    required
+                    min={2010}
+                    max={2025}
+                    step={1}
+                    title="Please enter a valid year between 2010 and 2025."
                 />
+
                 <select
                     value={chartProps.attributeScope}
                     onChange={(e) => chartProps.setAttributeScope(e.target.value)}
@@ -65,13 +84,14 @@ export default function AttributeFields({ chartProps }) {
                     <option value="overall">Overall</option>
                     <option value="position">Position</option>
                 </select>
+
                 <button
-                    onClick={handleSearch}
+                    type="submit"
                     className="w-full sm:w-auto px-6 py-2 bg-cyan-700 text-white font-bold rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200"
                 >
-                Search
+                    Search
                 </button>
-            </div>
+            </form>
         </div>
     );
 }

@@ -42,20 +42,34 @@ export default function ShotChartFields({ chartProps }) {
                 </h2>
             </div>
 
-            <div className="flex flex-col md:flex-row items-center gap-6">
-                <input
-                type="text"
-                placeholder="Enter Player Name"
-                onChange={(e) => chartProps.setShotChartPlayer(e.target.value)}
-                className="w-full sm:flex-1 px-4 py-3 border border-gray-300 font-roboto rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF4040] text-base sm:text-lg"
-                />
-                <button
-                onClick={handleSearch}
-                className="w-full sm:w-auto px-6 py-2 bg-[#ffee80] text-[#FF4040] font-bold font-roboto rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200 text-base sm:text-lg"
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    if (e.target.checkValidity()) {
+                    handleSearch();
+                    } else {
+                    e.target.reportValidity();
+                    }
+                }}
+                className="flex flex-col md:flex-row items-center gap-6"
                 >
-                Search
+                <input
+                    type="text"
+                    placeholder="Enter First Last name"
+                    onChange={(e) => chartProps.setShotChartPlayer(e.target.value)}
+                    className="w-full sm:flex-1 px-4 py-3 border border-gray-300 font-roboto rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF4040] text-base sm:text-lg"
+                    required
+                    pattern="^[A-Z][a-z]+ [A-Z][a-z]+(?:-[A-Z][a-z]+)?(?: (Jr\.|II|III))?$"
+                    title="Format: Firstname Lastname (case-sensitive, no accents). Hyphenated last names and suffixes Jr., II, III allowed."
+                />
+
+                <button
+                    type="submit"
+                    className="w-full sm:w-auto px-6 py-2 bg-[#ffee80] text-[#FF4040] font-bold font-roboto rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200 text-base sm:text-lg"
+                >
+                    Search
                 </button>
-            </div>
+            </form>
         </div>
     );
 }

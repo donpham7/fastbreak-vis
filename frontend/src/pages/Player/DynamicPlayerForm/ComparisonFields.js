@@ -60,48 +60,79 @@ export default function ComparisonFields({ chartProps }) {
 
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    if (e.target.checkValidity()) {
+                    handleSearch();
+                    } else {
+                    e.target.reportValidity();
+                    }
+                }}
+                className="grid grid-cols-1 md:grid-cols-5 gap-6"
+                >
                 <div className="space-y-4">
                     <input
-                        type="text"
-                        placeholder="Enter Player A"
-                        onChange={(e) => chartProps.setplayerAComparison(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                    type="text"
+                    placeholder="Enter First Last name"
+                    onChange={(e) => chartProps.setplayerAComparison(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                    required
+                    pattern="^[A-Z][a-z]+ [A-Z][a-z]+(?:-[A-Z][a-z]+)?(?: (Jr\.|II|III))?$"
+                    title="Format: Firstname Lastname (case-sensitive, no accents). Hyphenated last names and suffixes Jr., II, III allowed."
                     />
                 </div>
+
                 <div className="space-y-4">
                     <input
-                        type="text"
-                        placeholder="Enter Year "
-                        onChange={(e) => chartProps.setyearAComparison(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                    type="number"
+                    placeholder="Enter Year (e.g. 2023)"
+                    onChange={(e) => chartProps.setyearAComparison(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                    required
+                    min={2010}
+                    max={2025}
+                    step={1}
+                    title="Please enter a valid year between 2010 and 2025."
                     />
                 </div>
+
                 <div className="space-y-4">
                     <input
-                        type="text"
-                        placeholder="Enter Player B"
-                        onChange={(e) => chartProps.setplayerBComparison(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
+                    type="text"
+                    placeholder="Enter First Last name"
+                    onChange={(e) => chartProps.setplayerBComparison(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
+                    required
+                    pattern="^[A-Z][a-z]+ [A-Z][a-z]+(?:-[A-Z][a-z]+)?(?: (Jr\.|II|III))?$"
+                    title="Format: Firstname Lastname (case-sensitive, no accents). Hyphenated last names and suffixes Jr., II, III allowed."
                     />
                 </div>
+
                 <div className="space-y-4">
                     <input
-                        type="text"
-                        placeholder="Enter Year "
-                        onChange={(e) => chartProps.setyearBComparison(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
+                    type="number"
+                    placeholder="Enter Year (e.g. 2023)"
+                    onChange={(e) => chartProps.setyearBComparison(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
+                    required
+                    min={2010}
+                    max={2025}
+                    step={1}
+                    title="Please enter a valid year between 2010 and 2025."
                     />
                 </div>
+
                 <div className="space-y-4">
                     <button
-                        onClick={handleSearch}
-                        className="px-6 py-2 bg-cyan-700 text-white font-bold rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200"
+                    type="submit"
+                    className="px-6 py-2 bg-cyan-700 text-white font-bold rounded-xl shadow-md hover:scale-105 transform transition duration-200 border border-gray-200"
                     >
                     Search
                     </button>
                 </div>
-            </div>
+            </form>
+
         </div>
     );
 }
